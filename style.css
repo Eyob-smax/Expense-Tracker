@@ -18,7 +18,7 @@ body {
 
 .container {
   width: clamp(300px, 550px, 800px);
-  height: 90vh;
+  height: 95vh;
   width: 40%;
   position: absolute;
   top: 50%;
@@ -33,9 +33,10 @@ body {
 
 .container h1 {
   text-transform: capitalize;
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 15px;
+  font-weight: 900;
 }
 
 .inputs-container {
@@ -56,11 +57,15 @@ input {
   flex: 1;
   padding: 5px;
   font-weight: 600;
+  font-size: 0.7rem;
+  box-shadow: 0 0 1px 1px rgba(0, 0, 0, 0.15);
+  outline: none;
+  border: none;
 }
 label {
   display: block;
   margin-bottom: 4px;
-  /* font-size: 1.1rem; */
+  font-size: 0.85rem;
   font-family: "Roboto", sans-serif;
   font-weight: 800;
 }
@@ -70,7 +75,7 @@ form button {
   padding: 8px 0;
   text-align: center;
   border-radius: 4px;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   background-color: black;
   color: white;
   border: none;
