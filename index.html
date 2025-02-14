@@ -4,29 +4,73 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Expense Tracker</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js" defer></script>
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    />
   </head>
   <body>
-    <h1>Expense Tracker</h1>
-    <form>
-      <label for="name">Name</label>
-      <input type="text" id="name" name="name" />
-      <label for="amount">Amount</label>
-      <input type="number" id="amount" name="amount" />
-      <button type="submit">Add Expense</button>
-    </form>
-    <ul>
-      <li>
-        <span>Food</span>
-        <span>$10</span>
-      </li>
-      <li>
-        <span>Food</span>
-        <span>$10</span>
-      </li>
-      <li>
-        <span>Food</span>
-        <span>$10</span>
-      </li>
-    </ul>
+    <div class="container">
+      <h1>Monthly Expense Tracker</h1>
+      <div class="form-container">
+        <form action="">
+          <div class="inputs-container">
+            <div class="input-group">
+              <label for="expense">Month</label>
+              <select name="month" id="expense">
+                <option value="january">January</option>
+                <option value="february">February</option>
+                <option value="march">March</option>
+
+                <option value="april">April</option>
+                <option value="may">May</option>
+                <option value="june">June</option>
+
+                <option value="july">July</option>
+                <option value="august">August</option>
+                <option value="september">September</option>
+
+                <option value="october">October</option>
+                <option value="november">November</option>
+                <option value="december">December</option>
+              </select>
+            </div>
+
+            <div class="input-group">
+              <label for="year">Year</label>
+              <select name="year" id="year">
+                <option value="2024">2024</option>
+              </select>
+            </div>
+
+            <div class="input-group">
+              <label for="category">Category</label>
+              <select name="category" id="category">
+                <option value="housing">Housing</option>
+                <option value="fodd">Food</option>
+                <option value="transportation">Transportation</option>
+                <option value="bills">Bills</option>
+                <option value="miscellaneuos">Miscellaneuos</option>
+              </select>
+            </div>
+
+            <div class="amount">
+              <label for="amount">Amount</label>
+              <input type="number" id="amount" />
+            </div>
+          </div>
+
+          <button class="add-btn">Add Expense</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="expenses-container">
+      <canvas id="expense-chart"></canvas>
+    </div>
   </body>
 </html>
