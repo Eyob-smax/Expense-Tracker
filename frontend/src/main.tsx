@@ -2,6 +2,9 @@ import React, { StrictMode, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router";
 import DailyAnalytics from "./pages/DailyAnalytics";
+import { Provider } from "react-redux";
+import { store } from "./app/store";
+import { formAction } from "./pages/UserForm";
 const App = React.lazy(() => import("./App"));
 const UserForm = React.lazy(() => import("./pages/UserForm"));
 const Settings = React.lazy(() => import("./pages/Settings"));
@@ -31,10 +34,12 @@ const router = createBrowserRouter([
   {
     path: "/login",
     element: <UserForm type="login" />,
+    action: formAction,
   },
   {
     path: "/signup",
     element: <UserForm type="signup" />,
+    action: formAction,
   },
   {
     path: "/settings",
@@ -94,8 +99,10 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <Suspense fallback={<LoadingScreen />}>
-      <RouterProvider router={router} />
-    </Suspense>
+    <Provider store={store}>
+      <Suspense fallback={<LoadingScreen />}>
+        <RouterProvider router={router} />
+      </Suspense>
+    </Provider>
   </StrictMode>
 );
