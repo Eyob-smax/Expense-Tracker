@@ -4,7 +4,8 @@ import { createBrowserRouter, RouterProvider } from "react-router";
 import DailyAnalytics from "./pages/DailyAnalytics";
 import { Provider } from "react-redux";
 import { store } from "./app/store";
-import { formAction } from "./pages/UserForm";
+import { formAction } from "./dataApi/actions/actions";
+import Wrapper from "./pages/Wrapper";
 const App = React.lazy(() => import("./App"));
 const UserForm = React.lazy(() => import("./pages/UserForm"));
 const Settings = React.lazy(() => import("./pages/Settings"));
@@ -101,7 +102,9 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <Provider store={store}>
       <Suspense fallback={<LoadingScreen />}>
-        <RouterProvider router={router} />
+        <Wrapper>
+          <RouterProvider router={router} />
+        </Wrapper>
       </Suspense>
     </Provider>
   </StrictMode>

@@ -2,7 +2,6 @@ import { FaBars } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { Button } from "./ui/button";
 import type { JSX } from "react";
-import { v4 as uuidv4 } from "uuid";
 type THeaderProps = {
   title: string;
   linksOption: Array<{
@@ -21,32 +20,29 @@ export default function Header({ title, linksOption }: THeaderProps) {
       </div>
       <FaBars className="sm:hidden text-2xl cursor-pointer" />
       <nav className="hidden sm:flex  ">
-        <ul className="flex text-[#121417] font-semibold  items-center space-x-4">
+        <ul className="flex text-[#121417] font-semibold items-center space-x-4">
           {linksOption.map(({ label, path, element, specialStyle }) => {
-            if (label === "Login" || label === "Sign up") {
-              return (
-                <Link key={uuidv4()} to={path}>
-                  <Button
-                    key={uuidv4()}
-                    className={
-                      specialStyle ? specialStyle : "bg-stone-800 text-white"
-                    }
-                  >
-                    {element ? element : label}
-                  </Button>
-                </Link>
-              );
-            }
-            return element ? (
-              element
-            ) : (
-              <Link
-                to={path}
-                className="hover:border-b-1 duration-75"
-                key={uuidv4()}
-              >
-                {element ? element : label}
-              </Link>
+            const uniqueKey = `${label}-${path}`;
+            return (
+              <li key={uniqueKey}>
+                {label === "Login" || label === "Sign up" ? (
+                  <Link to={path}>
+                    <Button
+                      className={
+                        specialStyle ? specialStyle : "bg-stone-800 text-white"
+                      }
+                    >
+                      {element ? element : label}
+                    </Button>
+                  </Link>
+                ) : element ? (
+                  <>{element}</>
+                ) : (
+                  <Link to={path} className="hover:border-b-1 duration-75">
+                    {label}
+                  </Link>
+                )}
+              </li>
             );
           })}
         </ul>

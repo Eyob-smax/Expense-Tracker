@@ -1,11 +1,15 @@
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
 import { FaGithub, FaGoogle } from "react-icons/fa";
-import { Link, useFetcher } from "react-router-dom";
+import { Link, useFetcher, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import type { AppDispatch } from "recharts/types/state/store";
-import { login, signUp } from "../features/auth/authSlice";
+import {
+  setLoginData,
+  signUpWithGithub,
+  signUpWithGoogle,
+} from "../features/auth/authSlice";
+import type { TAppDispatch } from "../app/store";
 import { supabase } from "../supabase/supabaseClient";
 export default function UserForm({
   type = "signup",
@@ -16,11 +20,39 @@ export default function UserForm({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const fetcher = useFetcher();
+  const dispatch = useDispatch<TAppDispatch>();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const data = fetcher?.data;
-    console.log(data);
-  }, [fetcher.data]);
+    const checkAuth = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (session) {
+        navigate("/overview");
+      }
+    };
+    checkAuth();
+  }, [navigate]);
+
+  useEffect(() => {
+    if (fetcher.data?.success) {
+      const userData = {
+        username: fetcher.data.user.username,
+        email: fetcher.data.user.email,
+        profilePicture: fetcher.data.user.profilePicture,
+      };
+      dispatch(setLoginData(userData));
+      if (type === "signup") {
+        alert("Account created successfully!");
+      } else {
+        alert("Logged in successfully!");
+      }
+      navigate("/overview");
+    } else if (fetcher.data?.error) {
+      alert(fetcher.data.error);
+    }
+  }, [fetcher.data, dispatch, navigate, type]);
 
   return (
     <div className="flex items-center justify-center h-screen  w-[80%] mx-auto gap-x-10">
@@ -113,10 +145,18 @@ export default function UserForm({
           </div>
 
           <div className="w-full flex items-center justify-center space-x-4">
-            <Button className="flex-grow border border-gray-300">
+            <Button
+              type="button"
+              onClick={() => dispatch(signUpWithGoogle())}
+              className="flex-grow border border-gray-300"
+            >
               <FaGoogle /> Google
             </Button>
-            <Button className="flex-grow border border-gray-300">
+            <Button
+              type="button"
+              onClick={() => dispatch(signUpWithGithub())}
+              className="flex-grow border border-gray-300"
+            >
               <FaGithub /> Github
             </Button>
           </div>
@@ -146,46 +186,4 @@ export default function UserForm({
       </div>
     </div>
   );
-}
-
-export async function formAction({ request }: { request: Request }) {
-  const formData = await request.formData();
-  const type = formData.get("type") as "login" | "signup";
-  const email = formData.get("email") as string;
-  const password = formData.get("password") as string;
-  const username = formData.get("username") as string;
-
-  if (type === "signup") {
-    const userData = {
-      email,
-      password,
-      username,
-    };
-    const { data, error } = await supabase.auth.signUp(userData);
-    if (error) {
-      return { error: error.message };
-    }
-    if (data.user) {
-      const { error } = await supabase.from("users").insert({
-        email,
-        username,
-        password,
-        role: "admin",
-      });
-      if (error) {
-        return { error: error.message };
-      }
-    }
-    return { success: true, data };
-  }
-
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
-
-  if (error) {
-    return { error: error.message };
-  }
-  return { success: true, data };
 }

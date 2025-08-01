@@ -2,6 +2,7 @@ import { Link, Outlet } from "react-router-dom";
 import Header from "../components/Header";
 import { ProfileIcon } from "../utils/constants";
 import { useState } from "react";
+import useCheckAuth from "../hooks/useCheckAuth";
 
 const LinkOptions = [
   { tabIndex: 1, label: "Daily", path: "/analytics/daily" },
@@ -19,7 +20,7 @@ const headerLinksOption = [
 
 export default function AnalyticsOverview() {
   const [activeTab, setActiveTab] = useState("daily");
-
+  useCheckAuth();
   return (
     <div>
       <Header title="Expenses Tracker" linksOption={headerLinksOption} />

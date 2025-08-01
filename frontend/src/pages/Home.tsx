@@ -1,7 +1,13 @@
+import { useEffect } from "react";
 import Header from "../components/Header";
 import { Button } from "../components/ui/button";
 import { Link } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
+import { supabase } from "../supabase/supabaseClient";
+import type { TAppDispatch } from "../app/store";
+import { useDispatch } from "react-redux";
+import { setLoginData } from "../features/auth/authSlice";
+import useSetUser from "../hooks/useSetUser";
 const headerLinks = [
   { label: "Overview", path: "/overview" },
   { label: "Analytics", path: "analytics" },
@@ -11,6 +17,32 @@ const headerLinks = [
 ];
 
 export default function Home() {
+  const dispatch = useDispatch<TAppDispatch>();
+  useEffect(() => {
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        if (session?.user) {
+          dispatch(
+            setLoginData({
+              username:
+                session.user.user_metadata?.user_name ||
+                session.user.user_metadata?.name,
+              email: session.user.email,
+              profilePicture: session.user.user_metadata?.avatar_url,
+            })
+          );
+        }
+      }
+    );
+
+    return () => {
+      listener.subscription.unsubscribe();
+    };
+  }, [dispatch]);
+
+  // In your App.jsx or main component (e.g., useEffect in App.js)
+  useSetUser();
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
       <Header

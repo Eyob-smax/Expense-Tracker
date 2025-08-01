@@ -1,8 +1,8 @@
 import ButtonWithLink from "../components/ButtonWithLink";
 import Header from "../components/Header";
 import TableComponent from "../components/TableComponent";
+import useCheckAuth from "../hooks/useCheckAuth";
 import { ProfileIcon } from "../utils/constants";
-import { v4 as uuidv4 } from "uuid";
 
 const categoriesHeaderLinks = [
   {
@@ -21,13 +21,11 @@ const categoriesHeaderLinks = [
 ];
 
 export default function Categories() {
+  useCheckAuth();
+
   return (
     <div>
-      <Header
-        title="Categories"
-        linksOption={categoriesHeaderLinks}
-        key={uuidv4()}
-      />
+      <Header title="Categories" linksOption={categoriesHeaderLinks} />
       <div className="flex items-center justify-between  py-3 w-[80%] mx-auto text-center">
         <h1 className="text-[22px] font-bold">Categories</h1>
         <ButtonWithLink to="new">Add Category</ButtonWithLink>

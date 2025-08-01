@@ -3,7 +3,10 @@ import Header from "../components/Header";
 import { Switch } from "../components/ui/switch";
 import { ProfileIcon } from "../utils/constants";
 import { ArrowRight } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { logOutUser } from "../features/auth/authSlice";
+import type { TAppDispatch } from "../app/store";
 
 const SettingHeaderLists = [
   { path: "/expenses", label: "Expenses" },
@@ -18,6 +21,12 @@ const SettingHeaderLists = [
 export default function Settings() {
   const [emailChecked, setEmailChecked] = useState(false);
   const [darkModeChecked, setDarkModeChecked] = useState(false);
+  const dispatch = useDispatch<TAppDispatch>();
+  const navigate = useNavigate();
+  const logout = () => {
+    dispatch(logOutUser());
+    navigate("/login");
+  };
   return (
     <div>
       <Header title="Expense Tracker" linksOption={SettingHeaderLists} />
@@ -59,16 +68,15 @@ export default function Settings() {
           />
         </div>
         <h2 className="font-bold text-[16px] mt-8 mb-4">Account</h2>
-        <Link to={"/logout"}>
-          <div className="flex px-3  items-center justify-between mx-auto mb-8">
-            <div className="space-y-1">
-              <h3 className="font-semibold text-[15px] text-red-500">
-                Log out
-              </h3>
-            </div>
-            <ArrowRight />
+        <div
+          onClick={logout}
+          className="flex px-3  items-center justify-between mx-auto mb-8"
+        >
+          <div className="space-y-1">
+            <h3 className="font-semibold text-[15px] text-red-500">Log out</h3>
           </div>
-        </Link>
+          <ArrowRight />
+        </div>
       </div>
     </div>
   );

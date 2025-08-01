@@ -7,6 +7,7 @@ import TableComponent from "../components/TableComponent";
 import { ProfileIcon } from "../utils/constants";
 import ButtonWithLink from "../components/ButtonWithLink";
 import { useResizer } from "../hooks/useResizer";
+import useCheckAuth from "../hooks/useCheckAuth";
 
 function getCalculatedDate(
   type: "today" | "after" | "before",
@@ -61,6 +62,7 @@ const overviewLinks = [
 
 export default function ExpenseOverview() {
   const { elRef, visibleHeight } = useResizer<HTMLDivElement>();
+  useCheckAuth();
   return (
     <div>
       <Header
