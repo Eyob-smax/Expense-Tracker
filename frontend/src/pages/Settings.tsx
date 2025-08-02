@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { logOutUser } from "../features/auth/authSlice";
 import type { TAppDispatch } from "../app/store";
+import Swal from "sweetalert2";
 
 const SettingHeaderLists = [
   { path: "/expenses", label: "Expenses" },
@@ -23,7 +24,17 @@ export default function Settings() {
   const [darkModeChecked, setDarkModeChecked] = useState(false);
   const dispatch = useDispatch<TAppDispatch>();
   const navigate = useNavigate();
-  const logout = () => {
+  const logout = async () => {
+    const { isConfirmed } = await Swal.fire({
+      icon: "question",
+      title: "Are you sure",
+      text: "You're about to log out!",
+      confirmButtonText: "Log out",
+      confirmButtonColor: "red",
+      cancelButtonText: "Stay",
+      showCancelButton: true,
+    });
+    if (!isConfirmed) return;
     dispatch(logOutUser());
     navigate("/login");
   };
@@ -70,7 +81,7 @@ export default function Settings() {
         <h2 className="font-bold text-[16px] mt-8 mb-4">Account</h2>
         <div
           onClick={logout}
-          className="flex px-3  items-center justify-between mx-auto mb-8"
+          className="flex px-3 cursor-pointer items-center justify-between mx-auto mb-8"
         >
           <div className="space-y-1">
             <h3 className="font-semibold text-[15px] text-red-500">Log out</h3>

@@ -4,6 +4,7 @@ import { FaGithub, FaGoogle } from "react-icons/fa";
 import { Link, useFetcher, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
+import Swal from "sweetalert2";
 import {
   setLoginData,
   signUpWithGithub,
@@ -44,13 +45,19 @@ export default function UserForm({
       };
       dispatch(setLoginData(userData));
       if (type === "signup") {
-        alert("Account created successfully!");
-      } else {
-        alert("Logged in successfully!");
+        Swal.fire({
+          icon: "success",
+          title: "Confirm your email!!",
+          text: "User registered successfully, please click the confirm your email link sent to your email address.",
+        });
       }
       navigate("/overview");
     } else if (fetcher.data?.error) {
-      alert(fetcher.data.error);
+      Swal.fire({
+        icon: "error",
+        title: "Something went wrong",
+        text: fetcher.data.error,
+      });
     }
   }, [fetcher.data, dispatch, navigate, type]);
 

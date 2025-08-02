@@ -1,27 +1,31 @@
-import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { setLoginData } from "../features/auth/authSlice";
+import type { TAppDispatch } from "../app/store";
 import { supabase } from "../supabase/supabaseClient";
+import { setLoginData } from "../features/auth/authSlice";
 
 export default function useSetUser() {
-  const dispatch = useDispatch();
-  useEffect(() => {
-    const restoreUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+  const dispatch = useDispatch<TAppDispatch>();
 
-      if (user) {
-        dispatch(
-          setLoginData({
-            username: user.user_metadata?.user_name || user.user_metadata?.name,
-            email: user.email,
-            profilePicture: user.user_metadata?.avatar_url,
-          })
-        );
-      }
-    };
-
-    restoreUser();
-  }, [dispatch]);
+  const setUser = async () => {
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+    if (error) {
+      console.error("Error fetching user:", error);
+      return;
+    }
+    if (user) {
+      const userData = {
+        username: user.user_metadata.username || "",
+        email: user.email || "",
+        profilePicture: user.user_metadata.avatar_url || "",
+      };
+      dispatch(setLoginData(userData));
+    } else {
+      console.warn("No user found");
+    }
+  };
+  setUser();
+  return null;
 }
