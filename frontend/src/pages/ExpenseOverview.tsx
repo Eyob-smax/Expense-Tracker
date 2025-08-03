@@ -7,7 +7,6 @@ import TableComponent from "../components/TableComponent";
 import { ProfileIcon } from "../utils/constants";
 import ButtonWithLink from "../components/ButtonWithLink";
 import { useResizer } from "../hooks/useResizer";
-
 import { useRegisterUser } from "../hooks/useRegisterUser";
 import Swal from "sweetalert2";
 import LoadingScreen from "./LoadingScreen";
@@ -15,37 +14,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchExpenses } from "../features/expense/expenseSlice";
 import type { TAppDispatch, TRootState } from "../app/store";
 import { useEffect } from "react";
-
-function getCalculatedDate(
-  type: "today" | "after" | "before",
-  amount?: number
-) {
-  if (type === "after" && amount) {
-    return new Date(
-      Date.now() + amount * 24 * 60 * 60 * 1000
-    ).toLocaleDateString("en-US", {
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-    });
-  }
-
-  if (type === "before" && amount) {
-    return new Date(
-      Date.now() - amount * 24 * 60 * 60 * 1000
-    ).toLocaleDateString("en-US", {
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-    });
-  }
-
-  return new Date().toLocaleDateString("en-US", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
-}
+import { getCalculatedDate } from "../utils/util";
 const overviewLinks = [
   { label: "catagories", path: "/categories" },
   { label: "analytics", path: "/analytics" },
@@ -71,7 +40,15 @@ export default function ExpenseOverview() {
   const { elRef, visibleHeight } = useResizer<HTMLDivElement>();
   const { error, loading } = useRegisterUser();
   const dispatch = useDispatch<TAppDispatch>();
-  const { expenses } = useSelector((state: TRootState) => state.expense);
+  const {
+    expenses,
+    isLoading,
+    error: expenseError,
+  } = useSelector((state: TRootState) => state.expense);
+
+  useEffect(() => {
+    dispatch(fetchExpenses());
+  }, [dispatch]);
 
   if (error) {
     Swal.fire({
@@ -81,13 +58,21 @@ export default function ExpenseOverview() {
     });
   }
 
-  if (loading) {
-    <LoadingScreen />;
+  if (expenseError) {
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: expenseError,
+    });
   }
 
-  useEffect(() => {
-    dispatch(fetchExpenses());
-  }, [dispatch]);
+  if (loading) {
+    return <LoadingScreen />;
+  }
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
 
   return (
     <div>
@@ -144,17 +129,7 @@ export default function ExpenseOverview() {
           ref={elRef}
           style={{ maxHeight: visibleHeight.toString() + "px" }}
           className="border-1 border-[#dbe0e5] mt-3 rounded-2xl overflow-y-scroll"
-          bodyArrays={expenses.map((expense) => ({
-            date: new Date(expense.date).toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            }),
-            category: "some-category",
-            description: expense.description,
-            amount: expense.amount,
-            status: "Pending",
-          }))}
+          bodyArrays={expenses}
           headerArrays={["Date", "Category", "Description", "Amount", "Status"]}
         />
         <ButtonWithLink to="/expenses">View All Transactions</ButtonWithLink>

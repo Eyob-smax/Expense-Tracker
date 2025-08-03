@@ -1,21 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { supabase } from "../../supabase/supabaseClient";
-
-type TExpense = {
-  id: string;
-  description?: string;
-  amount: number;
-  date: string;
-  name: string;
-  currency?: string;
-  user_id: string;
-};
-
-type TExpenseInitialState = {
-  expenses: TExpense[];
-  isLoading: boolean;
-  error: string | null;
-};
+import type { TExpense, TExpenseInitialState } from "../../types/types";
 
 const initialState: TExpenseInitialState = {
   expenses: [],

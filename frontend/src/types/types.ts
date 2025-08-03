@@ -9,3 +9,19 @@ export interface TInitialAuthState {
   isLoading: boolean;
   error: string | null;
 }
+
+export interface TExpense {
+  expense_id: string;
+  description?: string;
+  amount: number;
+  date: string;
+  name: string;
+  currency?: string;
+  user_id: string;
+}
+
+export interface TExpenseInitialState {
+  expenses: TExpense[];
+  isLoading: boolean;
+  error: string | null;
+}
