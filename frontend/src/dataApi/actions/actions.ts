@@ -60,6 +60,7 @@ export async function formAction({ request }: { request: Request }) {
       email,
       username,
       role: email === "eyobsmax@gmail.com" ? "admin" : "user",
+      id: signUpData.user.id,
     });
 
     if (insertError) {

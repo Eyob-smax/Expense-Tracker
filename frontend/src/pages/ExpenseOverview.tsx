@@ -7,7 +7,14 @@ import TableComponent from "../components/TableComponent";
 import { ProfileIcon } from "../utils/constants";
 import ButtonWithLink from "../components/ButtonWithLink";
 import { useResizer } from "../hooks/useResizer";
-import useCheckAuth from "../hooks/useCheckAuth";
+
+import { useRegisterUser } from "../hooks/useRegisterUser";
+import Swal from "sweetalert2";
+import LoadingScreen from "./LoadingScreen";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchExpenses } from "../features/expense/expenseSlice";
+import type { TAppDispatch, TRootState } from "../app/store";
+import { useEffect } from "react";
 
 function getCalculatedDate(
   type: "today" | "after" | "before",
@@ -62,7 +69,26 @@ const overviewLinks = [
 
 export default function ExpenseOverview() {
   const { elRef, visibleHeight } = useResizer<HTMLDivElement>();
-  useCheckAuth();
+  const { error, loading } = useRegisterUser();
+  const dispatch = useDispatch<TAppDispatch>();
+  const { expenses } = useSelector((state: TRootState) => state.expense);
+
+  if (error) {
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: error,
+    });
+  }
+
+  if (loading) {
+    <LoadingScreen />;
+  }
+
+  useEffect(() => {
+    dispatch(fetchExpenses());
+  }, [dispatch]);
+
   return (
     <div>
       <Header
@@ -118,11 +144,17 @@ export default function ExpenseOverview() {
           ref={elRef}
           style={{ maxHeight: visibleHeight.toString() + "px" }}
           className="border-1 border-[#dbe0e5] mt-3 rounded-2xl overflow-y-scroll"
-          bodyArrays={[
-            ["2023-03-01", "Food", "Lunch at Cafe", "$50", "Completed"],
-            ["2023-03-02", "Transport", "Taxi to Airport", "$20", "Completed"],
-            ["2023-03-02", "Transport", "Taxi to Airport", "$20", "Completed"],
-          ]}
+          bodyArrays={expenses.map((expense) => ({
+            date: new Date(expense.date).toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            }),
+            category: "some-category",
+            description: expense.description,
+            amount: expense.amount,
+            status: "Pending",
+          }))}
           headerArrays={["Date", "Category", "Description", "Amount", "Status"]}
         />
         <ButtonWithLink to="/expenses">View All Transactions</ButtonWithLink>

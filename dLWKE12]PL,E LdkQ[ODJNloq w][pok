@@ -1,0 +1,7 @@
+[33m5ea7124[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m HEAD@{0}: reset: moving to 5ea7124
+[33mbdfe828[m[33m ([m[1;31morigin/main[m[33m)[m HEAD@{1}: reset: moving to bdfe828
+[33mbdfe828[m[33m ([m[1;31morigin/main[m[33m)[m HEAD@{2}: reset: moving to HEAD^
+[33m5ea7124[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m HEAD@{3}: commit: Finishing auth
+[33mbdfe828[m[33m ([m[1;31morigin/main[m[33m)[m HEAD@{4}: commit: Adding supabase auth
+[33mfa0512c[m HEAD@{5}: commit: removing unneccessary files
+[33m6da3be2[m HEAD@{6}: commit (initial): Finishing the ui part

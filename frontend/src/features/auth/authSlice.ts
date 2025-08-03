@@ -10,7 +10,7 @@ const initialState: TInitialAuthState = {
 
 export const signUpWithGithub = createAsyncThunk(
   "auth/signupWithGithub",
-  async (_, { rejectWithValue, dispatch }) => {
+  async (_, { rejectWithValue }) => {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "github",
       options: {
@@ -21,30 +21,13 @@ export const signUpWithGithub = createAsyncThunk(
       return rejectWithValue(error.message);
     }
 
-    const { data: userData, error: userError } = await supabase.auth.getUser();
-    if (userError || !userData.user) {
-      return rejectWithValue(
-        userError?.message || "Failed to fetch user data."
-      );
-    }
-
-    dispatch(
-      setLoginData({
-        username:
-          userData.user.user_metadata?.user_name ||
-          userData.user.user_metadata?.name,
-        email: userData.user.email,
-        profilePicture: userData.user.user_metadata?.avatar_url,
-      })
-    );
-
     return data;
   }
 );
 
 export const signUpWithGoogle = createAsyncThunk(
   "auth/signupWithGoogle",
-  async (_, { rejectWithValue, dispatch }) => {
+  async (_, { rejectWithValue }) => {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
@@ -56,22 +39,6 @@ export const signUpWithGoogle = createAsyncThunk(
       return rejectWithValue(error.message);
     }
 
-    const { data: userData, error: userError } = await supabase.auth.getUser();
-    if (userError || !userData.user) {
-      return rejectWithValue(
-        userError?.message || "Failed to fetch user data."
-      );
-    }
-
-    dispatch(
-      setLoginData({
-        username:
-          userData.user.user_metadata?.user_name ||
-          userData.user.user_metadata?.name,
-        email: userData.user.email,
-        profilePicture: userData.user.user_metadata?.avatar_url,
-      })
-    );
     return data;
   }
 );
@@ -98,7 +65,43 @@ const authSlice = createSlice({
       state.user = null;
     },
   },
-  extraReducers: (builder) => {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(signUpWithGithub.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(signUpWithGithub.fulfilled, (state) => {
+        state.isLoading = false;
+      })
+      .addCase(signUpWithGithub.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(signUpWithGoogle.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(signUpWithGoogle.fulfilled, (state) => {
+        state.isLoading = false;
+      })
+      .addCase(signUpWithGoogle.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(logOutUser.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(logOutUser.fulfilled, (state) => {
+        state.isLoading = false;
+        state.user = null;
+      })
+      .addCase(logOutUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      });
+  },
 });
 
 export const { actions, reducer } = authSlice;

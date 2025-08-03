@@ -1,5 +1,6 @@
 import Header from "../components/Header";
 import { Button } from "../components/ui/button";
+import useCheckAuth from "../hooks/useCheckAuth";
 import { ProfileIcon } from "../utils/constants";
 
 const ExpenseDetailLinksOption = [
@@ -10,6 +11,8 @@ const ExpenseDetailLinksOption = [
   ProfileIcon,
 ];
 export default function ExpenseDetail() {
+  useCheckAuth();
+
   return (
     <div>
       <Header title="Expense Tracker" linksOption={ExpenseDetailLinksOption} />

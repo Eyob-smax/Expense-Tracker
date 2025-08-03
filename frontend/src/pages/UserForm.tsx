@@ -3,14 +3,14 @@ import { Button } from "../components/ui/button";
 import { FaGithub, FaGoogle } from "react-icons/fa";
 import { Link, useFetcher, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Swal from "sweetalert2";
 import {
   setLoginData,
   signUpWithGithub,
   signUpWithGoogle,
 } from "../features/auth/authSlice";
-import type { TAppDispatch } from "../app/store";
+import type { TAppDispatch, TRootState } from "../app/store";
 import { supabase } from "../supabase/supabaseClient";
 export default function UserForm({
   type = "signup",
@@ -24,6 +24,7 @@ export default function UserForm({
   const dispatch = useDispatch<TAppDispatch>();
   const navigate = useNavigate();
 
+  const { error } = useSelector((state: TRootState) => state.auth);
   useEffect(() => {
     const checkAuth = async () => {
       const {
@@ -60,6 +61,14 @@ export default function UserForm({
       });
     }
   }, [fetcher.data, dispatch, navigate, type]);
+
+  if (error) {
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: error,
+    });
+  }
 
   return (
     <div className="flex items-center justify-center h-screen  w-[80%] mx-auto gap-x-10">
@@ -174,11 +183,11 @@ export default function UserForm({
               type="submit"
               className="w-full mt-4 bg-stone-800 text-white "
             >
-              {fetcher.state === "submitting"
-                ? "Submiting..."
-                : type === "signup"
-                ? "Sign up"
-                : "Login"}
+              {fetcher.state === "submitting" && type === "signup"
+                ? "Sending confirmation email..."
+                : type === "login"
+                ? "Login"
+                : "Sign up"}
             </Button>
           </div>
         </fetcher.Form>
