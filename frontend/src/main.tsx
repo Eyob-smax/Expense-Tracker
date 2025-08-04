@@ -6,6 +6,7 @@ import { Provider } from "react-redux";
 import { store } from "./app/store";
 import { formAction } from "./dataApi/actions/actions";
 import Wrapper from "./pages/Wrapper";
+import expenseLoader from "./dataApi/loaders/loader";
 const App = React.lazy(() => import("./App"));
 const UserForm = React.lazy(() => import("./pages/UserForm"));
 const Settings = React.lazy(() => import("./pages/Settings"));
@@ -67,6 +68,7 @@ const router = createBrowserRouter([
   {
     path: "/overview",
     element: <ExpenseOverview />,
+    loader: expenseLoader,
   },
   {
     path: "/expenses",

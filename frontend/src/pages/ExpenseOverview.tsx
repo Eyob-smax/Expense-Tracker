@@ -10,11 +10,12 @@ import { useResizer } from "../hooks/useResizer";
 import { useRegisterUser } from "../hooks/useRegisterUser";
 import Swal from "sweetalert2";
 import LoadingScreen from "./LoadingScreen";
+import dayjs from "dayjs";
+import { useLoaderData, useNavigation } from "react-router-dom";
+import type { TExpense } from "../types/types";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchExpenses } from "../features/expense/expenseSlice";
 import type { TAppDispatch, TRootState } from "../app/store";
-import { useEffect } from "react";
-import { getCalculatedDate } from "../utils/util";
+import { setExpenses } from "../features/expense/expenseSlice";
 const overviewLinks = [
   { label: "catagories", path: "/categories" },
   { label: "analytics", path: "/analytics" },
@@ -37,18 +38,56 @@ const overviewLinks = [
 ];
 
 export default function ExpenseOverview() {
+  const dispatch = useDispatch<TAppDispatch>();
   const { elRef, visibleHeight } = useResizer<HTMLDivElement>();
   const { error, loading } = useRegisterUser();
-  const dispatch = useDispatch<TAppDispatch>();
-  const {
-    expenses,
-    isLoading,
-    error: expenseError,
-  } = useSelector((state: TRootState) => state.expense);
+  const { data: fetchedExpenses, error: expenseError } = useLoaderData();
+  const isLoading = useNavigation().state === "loading";
+  const { expenses } = useSelector((state: TRootState) => state.expense);
+  dispatch(setExpenses(fetchedExpenses));
 
-  useEffect(() => {
-    dispatch(fetchExpenses());
-  }, [dispatch]);
+  const handleDateFilterChange = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    const value = event.target.value;
+    const filteredExpenses = expenses.filter((expense: TExpense) => {
+      const expenseDate = dayjs(expense.date);
+      const today = dayjs();
+
+      switch (value) {
+        case "3_days":
+          return (
+            expenseDate.isSame(today.subtract(3, "day"), "day") ||
+            expenseDate.isAfter(today.subtract(3, "day"), "day")
+          );
+        case "5_days":
+          return (
+            expenseDate.isSame(today.subtract(5, "day"), "day") ||
+            expenseDate.isAfter(today.subtract(5, "day"), "day")
+          );
+        case "7_days":
+          return (
+            expenseDate.isSame(today.subtract(7, "day"), "day") ||
+            expenseDate.isAfter(today.subtract(7, "day"), "day")
+          );
+        case "15_days":
+          return (
+            expenseDate.isSame(today.subtract(15, "day"), "day") ||
+            expenseDate.isAfter(today.subtract(15, "day"), "day")
+          );
+        case "this_month":
+          return (
+            expenseDate.isSame(today.startOf("month"), "day") ||
+            expenseDate.isAfter(today.startOf("month"), "day")
+          );
+        default:
+          return true;
+      }
+    });
+
+    console.log("Filtered Expenses:", filteredExpenses);
+    dispatch(setExpenses(filteredExpenses));
+  };
 
   if (error) {
     Swal.fire({
@@ -87,32 +126,29 @@ export default function ExpenseOverview() {
           Here you can find a summary of your expenses.
         </p>
         <div className="flex items-center justify-start gap-8">
-          <ExpenseCard
-            amount={"2,500"}
-            label={getCalculatedDate("today")}
-            percentageChange={{ color: "#E83808", value: "10" }}
-            className="w-[300px] bg-[#F0F2F5] shadow-md rounded-lg px-6 py-4 mt-3"
-          />
-          <ExpenseCard
-            amount={"2,500"}
-            label={getCalculatedDate("before", 1)}
-            percentageChange={{ color: "#088738", value: "+30" }}
-            className="w-[300px] bg-[#F0F2F5] shadow-md rounded-lg px-6 py-4 mt-3"
-          />
-          <ExpenseCard
-            amount={"2,500"}
-            label={getCalculatedDate("before", 2)}
-            percentageChange={{ color: "#088738", value: "+10" }}
-            className="w-[300px] bg-[#F0F2F5] shadow-md rounded-lg px-6 py-4 mt-3"
-          />
+          {expenses.slice(0, 5).map((expense: TExpense) => (
+            <ExpenseCard
+              key={expense.expense_id}
+              amount={expense.amount.toString()}
+              label={dayjs(expense.date).format("MMM DD, YYYY")}
+              percentageChange={{ color: "#E83808", value: "10" }}
+              className="w-[300px] bg-[#F0F2F5] shadow-md rounded-lg px-6 py-4 mt-3"
+            />
+          ))}
         </div>
         <h1 className="text-[20px] mt-5 font-bold">Recent Transactions</h1>
         <div className="flex items-center justify-start gap-5 mt-1">
           <div className="rounded-[15px] text-sm w-fit   py-[3px] px-5 mt-2 bg-[#F0F2F5] space-x-3">
-            <select className=" appearance-none ">
+            <select
+              className=" appearance-none "
+              onChange={handleDateFilterChange}
+            >
               <option value="Sort_by_date">Sort by date</option>
-              <option value="this_week">This Week</option>
-              <option value="this_month">This Month</option>
+              <option value="3_days">Last three days</option>
+              <option value="5_days">Last five days</option>
+              <option value="7_days">Last seven days</option>
+              <option value="15_days">Last fifteen days</option>
+              <option value="this_month">This month</option>
             </select>
             <span className="transition-transform rotate-90">▼</span>
           </div>

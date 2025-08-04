@@ -116,7 +116,11 @@ export const deleteExpenseById = createAsyncThunk(
 const expenseSlice = createSlice({
   name: "expenses",
   initialState,
-  reducers: {},
+  reducers: {
+    setExpenses: (state, action) => {
+      state.expenses = action.payload;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchExpenses.pending, (state) => {
@@ -166,3 +170,4 @@ const expenseSlice = createSlice({
 });
 
 export const reducer = expenseSlice.reducer;
+export const { setExpenses } = expenseSlice.actions;

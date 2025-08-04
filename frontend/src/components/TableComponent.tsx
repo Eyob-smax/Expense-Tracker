@@ -29,7 +29,7 @@ export default function TableComponent({
             <tr key={row.expense_id} className="border-b border-[#E4E7EC]">
               <td className="px-4 py-2">
                 {new Date(row.date).toLocaleDateString("en-US", {
-                  month: "long",
+                  month: "short",
                   day: "numeric",
                   year: "numeric",
                 })}

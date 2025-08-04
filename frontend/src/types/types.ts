@@ -25,3 +25,17 @@ export interface TExpenseInitialState {
   isLoading: boolean;
   error: string | null;
 }
+
+export interface TCategory {
+  user_id: string;
+  category_id: string;
+  icon: string;
+  cat_name: string;
+  relevance: "high" | "medium" | "low";
+}
+
+export interface TCategoryInitialState {
+  categories: TCategory[];
+  isLoading: boolean;
+  error: string | null;
+}
