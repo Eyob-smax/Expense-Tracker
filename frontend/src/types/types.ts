@@ -18,6 +18,8 @@ export interface TExpense {
   name: string;
   currency?: string;
   user_id: string;
+  quantity?: number;
+  categoryIds?: string[];
 }
 
 export interface TExpenseInitialState {

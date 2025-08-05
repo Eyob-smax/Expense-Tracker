@@ -4,9 +4,9 @@ import { createBrowserRouter, RouterProvider } from "react-router";
 import DailyAnalytics from "./pages/DailyAnalytics";
 import { Provider } from "react-redux";
 import { store } from "./app/store";
-import { formAction } from "./dataApi/actions/actions";
+import { addExpenseAction, formAction } from "./dataApi/actions/actions";
 import Wrapper from "./pages/Wrapper";
-import expenseLoader from "./dataApi/loaders/loader";
+import expenseLoader, { categoryLoader } from "./dataApi/loaders/loader";
 const App = React.lazy(() => import("./App"));
 const UserForm = React.lazy(() => import("./pages/UserForm"));
 const Settings = React.lazy(() => import("./pages/Settings"));
@@ -81,14 +81,17 @@ const router = createBrowserRouter([
   {
     path: "/expenses/new",
     element: <AddExpense />,
+    action: addExpenseAction,
   },
   {
     path: "/categories",
     element: <Categories />,
+    loader: categoryLoader,
   },
   {
     path: "/categories/new",
     element: <AddCategories />,
+    action: addExpenseAction,
   },
   {
     path: "/categories/:id",

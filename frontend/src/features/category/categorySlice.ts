@@ -25,9 +25,16 @@ export const fetchCategories = createAsyncThunk(
 export const addCategory = createAsyncThunk(
   "categories/addCategory",
   async (categoryData: { name: string }, { rejectWithValue }) => {
-    const { data, error } = await supabase
-      .from("category")
-      .insert(categoryData);
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+    if (userError) {
+      console.error("Error fetching user data:", userError);
+      return rejectWithValue("Failed to fetch user data");
+    }
+
+    const { data, error } = await supabase.from("category").insert({
+      ...categoryData,
+      user_id: userData?.user?.id,
+    });
 
     if (error) {
       console.error("Error adding category:", error);
@@ -110,7 +117,11 @@ export const deleteCategoryById = createAsyncThunk(
 const categorySlice = createSlice({
   name: "category",
   initialState,
-  reducers: {},
+  reducers: {
+    setCategories: (state, action) => {
+      state.categories = action.payload;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchCategories.pending, (state) => {
@@ -162,3 +173,4 @@ const categorySlice = createSlice({
 
 export const { actions: categoryActions, reducer: categoryReducer } =
   categorySlice;
+export const { setCategories } = categorySlice.actions;

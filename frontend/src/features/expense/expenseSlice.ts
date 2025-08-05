@@ -24,9 +24,16 @@ export const fetchExpenses = createAsyncThunk(
 
 export const addExpense = createAsyncThunk(
   "expenses/addExpense",
-  async (expenseData: Omit<TExpense, "id">, { rejectWithValue }) => {
-    const { data, error } = await supabase.from("expense").insert(expenseData);
-
+  async (expenseData: TExpense, { rejectWithValue }) => {
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+    if (userError) {
+      console.error("Error fetching user data:", userError);
+      return rejectWithValue("Failed to fetch user data");
+    }
+    const { data, error } = await supabase.from("expense").insert({
+      ...expenseData,
+      user_id: userData?.user?.id,
+    });
     if (error) {
       console.error("Error adding expense:", error);
       return rejectWithValue("Failed to add expense");

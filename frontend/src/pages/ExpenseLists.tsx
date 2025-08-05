@@ -5,6 +5,14 @@ import { Input } from "../components/ui/input";
 import { ProfileIcon } from "../utils/constants";
 import { useResizer } from "../hooks/useResizer";
 import { v4 as uuidv4 } from "uuid";
+import type { TAppDispatch, TRootState } from "../app/store";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useState } from "react";
+import { fetchExpenses } from "../features/expense/expenseSlice";
+import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
+import type { TExpense } from "../types/types";
+import Filtering from "../components/Filtering";
 const ExpenseListsHeaders = [
   { label: "Analytics", path: "/analytics" },
   { label: "Overview", path: "/overview" },
@@ -16,6 +24,30 @@ const ExpenseListsHeaders = [
 
 export default function ExpenseLists() {
   const { elRef, visibleHeight } = useResizer<HTMLDivElement>();
+  const { expenses } = useSelector((state: TRootState) => state.expense);
+  const dispatch = useDispatch<TAppDispatch>();
+  const navigate = useNavigate();
+  const [filteredExpenses, setFilteredExpenses] = useState<TExpense[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        await dispatch(fetchExpenses()).unwrap();
+      } catch (err) {
+        console.error("Failed to fetch expenses:", err);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Failed to fetch expenses.",
+        });
+        navigate("/overview");
+      }
+    })();
+  }, [dispatch, navigate]);
+
+  useEffect(() => {
+    setFilteredExpenses(expenses || []);
+  }, [expenses]);
 
   return (
     <div>
@@ -28,6 +60,11 @@ export default function ExpenseLists() {
         <h1 className="font-bold text-[22px]">All Expenses</h1>
         <ButtonWithLink to="new">New Expense</ButtonWithLink>
       </div>
+      <Filtering
+        expenses={expenses}
+        setFilteredExpenses={setFilteredExpenses}
+        className="flex items-center justify-start gap-5  w-[90%] mx-auto mb-3"
+      />
 
       <div className=" w-[90%] mx-auto">
         <Input
@@ -37,31 +74,9 @@ export default function ExpenseLists() {
         />
 
         <TableComponent
-          key={uuidv4()}
           ref={elRef}
           headerArrays={["Date", "Category", "Description", "Amount", "Status"]}
-          bodyArrays={[
-            ["2023-03-01", "Food", "Lunch at Cafe", "$50", "Completed"],
-            ["2023-03-02", "Transport", "Taxi to Airport", "$20", "Completed"],
-            ["2023-03-02", "Transport", "Taxi to Airport", "$20", "Completed"],
-            ["2023-03-02", "Transport", "Taxi to Airport", "$20", "Completed"],
-            ["2023-03-01", "Food", "Lunch at Cafe", "$50", "Completed"],
-            ["2023-03-02", "Transport", "Taxi to Airport", "$20", "Completed"],
-            ["2023-03-02", "Transport", "Taxi to Airport", "$20", "Completed"],
-            ["2023-03-02", "Transport", "Taxi to Airport", "$20", "Completed"],
-            ["2023-03-01", "Food", "Lunch at Cafe", "$50", "Completed"],
-            ["2023-03-02", "Transport", "Taxi to Airport", "$20", "Completed"],
-            ["2023-03-02", "Transport", "Taxi to Airport", "$20", "Completed"],
-            ["2023-03-02", "Transport", "Taxi to Airport", "$20", "Completed"],
-            ["2023-03-01", "Food", "Lunch at Cafe", "$50", "Completed"],
-            ["2023-03-02", "Transport", "Taxi to Airport", "$20", "Completed"],
-            ["2023-03-02", "Transport", "Taxi to Airport", "$20", "Completed"],
-            ["2023-03-02", "Transport", "Taxi to Airport", "$20", "Completed"],
-            ["2023-03-01", "Food", "Lunch at Cafe", "$50", "Completed"],
-            ["2023-03-02", "Transport", "Taxi to Airport", "$20", "Completed"],
-            ["2023-03-02", "Transport", "Taxi to Airport", "$20", "Completed"],
-            ["2023-03-02", "Transport", "Taxi to Airport", "$20", "Completed"],
-          ]}
+          bodyArrays={filteredExpenses}
           className="border border-[#dbe0e5] mt-3 rounded-2xl overflow-y-auto"
           style={{ maxHeight: `${visibleHeight}px` }}
         />

@@ -1,4 +1,6 @@
 import { supabase } from "../../supabase/supabaseClient";
+import { store } from "../../app/store";
+import { addExpense } from "../../features/expense/expenseSlice";
 
 export async function formAction({ request }: { request: Request }) {
   const formData = await request.formData();
@@ -98,4 +100,58 @@ export async function formAction({ request }: { request: Request }) {
       profilePicture: userMeta?.avatar_url || "",
     },
   };
+}
+
+export async function addExpenseAction({ request }: { request: Request }) {
+  const formData = await request.formData();
+  const { name, price, categoryIds, description, date, quantity, currency } =
+    Object.fromEntries(formData);
+
+  if (!name || !price || !categoryIds || !date) {
+    console.log("incomplete data");
+    console.log(name, categoryIds, description, date);
+    return { success: false, error: "Incomplete Data" };
+  }
+  try {
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+    if (userError) {
+      throw new Error("Can't fetch user data");
+    }
+    if (!userData || !userData.user?.id) return;
+    const { data: expenseData, error: expenseError } = await supabase
+      .from("expense")
+      .insert({
+        amount: Number(price),
+        date: date.toString(),
+        user_id: userData.user?.id,
+        name: name.toString(),
+        currency: currency.toString(),
+        description: description.toString(),
+        quantity: quantity ? parseInt(quantity.toString(), 10) : 1,
+      })
+      .select("expense_id");
+
+    if (expenseError) {
+      throw new Error("Can't insert expense to db");
+    }
+    await store
+      .dispatch(
+        addExpense({
+          amount: Number(price),
+          date: date.toString(),
+          user_id: userData.user?.id,
+          name: name.toString(),
+          currency: currency.toString(),
+          description: description.toString(),
+          expense_id: expenseData?.expense_id,
+        })
+      )
+      .unwrap();
+  } catch (error) {
+    console.log(error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+    return { success: false, error: errorMessage };
+  }
+  return { success: true };
 }
