@@ -104,54 +104,61 @@ export async function formAction({ request }: { request: Request }) {
 
 export async function addExpenseAction({ request }: { request: Request }) {
   const formData = await request.formData();
-  const { name, price, categoryIds, description, date, quantity, currency } =
-    Object.fromEntries(formData);
+  const name = formData.get("name") as string;
+  const price = formData.get("price") as string;
+  const categoryIds = formData.getAll("categoryIds") as string[];
+  const description = formData.get("description") as string;
+  const date = formData.get("date") as string;
+  const quantity = formData.get("quantity") as string;
+  const currency = formData.get("currency") as string;
 
-  if (!name || !price || !categoryIds || !date) {
-    console.log("incomplete data");
-    console.log(name, categoryIds, description, date);
-    return { success: false, error: "Incomplete Data" };
+  if (!name || !price || !date) {
+    return { success: false, error: "Title, price, and date are required" };
   }
+
   try {
     const { data: userData, error: userError } = await supabase.auth.getUser();
-    if (userError) {
-      throw new Error("Can't fetch user data");
+    if (userError || !userData.user) {
+      return { success: false, error: "User not authenticated" };
     }
-    if (!userData || !userData.user?.id) return;
-    const { data: expenseData, error: expenseError } = await supabase
-      .from("expense")
-      .insert({
-        amount: Number(price),
-        date: date.toString(),
-        user_id: userData.user?.id,
-        name: name.toString(),
-        currency: currency.toString(),
-        description: description.toString(),
-        quantity: quantity ? parseInt(quantity.toString(), 10) : 1,
-      })
-      .select("expense_id");
+    console.log("categoryIds:", categoryIds);
+    // Validate categoryIds
+    if (categoryIds.length > 0) {
+      const { data: validCategories, error: categoriesError } = await supabase
+        .from("category")
+        .select("category_id")
+        .in("category_id", categoryIds)
+        .eq("user_id", userData.user.id);
+      if (categoriesError || !validCategories) {
+        return {
+          success: false,
+          error: "One or more category IDs are invalid",
+        };
+      }
+    }
 
-    if (expenseError) {
-      throw new Error("Can't insert expense to db");
-    }
-    await store
+    const newExpense = await store
       .dispatch(
         addExpense({
           amount: Number(price),
-          date: date.toString(),
-          user_id: userData.user?.id,
-          name: name.toString(),
-          currency: currency.toString(),
-          description: description.toString(),
-          expense_id: expenseData?.expense_id,
+          currency: currency || "USD",
+          category_IDs: categoryIds,
+          description: description,
+          date: date,
+          name,
+          user_id: userData.user.id,
+          quantity: Number(quantity) || 1,
         })
       )
       .unwrap();
-  } catch (error) {
-    console.log(error);
+
+    return {
+      success: true,
+      expense: newExpense,
+    };
+  } catch (err) {
     const errorMessage =
-      error instanceof Error ? error.message : "Unknown error";
+      err instanceof Error ? err.message : "Failed to add expense";
     return { success: false, error: errorMessage };
   }
-  return { success: true };
 }

@@ -5,10 +5,11 @@ import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
 import { useDispatch, useSelector } from "react-redux";
 import type { TAppDispatch, TRootState } from "../app/store";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { fetchCategories } from "../features/category/categorySlice";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import { FaTimes } from "react-icons/fa";
 
 const addExpenselinksOption = [
   { label: "Home", path: "/" },
@@ -27,6 +28,7 @@ export default function AddExpense() {
   const navigate = useNavigate();
   const actionData = useActionData() as { error?: string } | undefined;
   const navigation = useNavigation();
+  const [categoryIds, setCategories] = useState<string[]>([]);
 
   useEffect(() => {
     if (categories.length === 0) {
@@ -46,22 +48,32 @@ export default function AddExpense() {
     }
   }, [categories, dispatch, navigate]);
 
-  if (fetcher.data && fetcher.data.error) {
-    Swal.fire({
-      icon: "error",
-      title: "Error",
-      text: fetcher.data.error,
-    });
-    return null;
-  }
+  useEffect(() => {
+    if (fetcher.data && fetcher.data.error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: fetcher.data.error,
+      });
+    } else if (fetcher.data && fetcher.data.success) {
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: "Expense added successfully!",
+      });
+      navigate("/expenses");
+    }
+  }, [fetcher.data, navigate]);
 
-  if (fetcher.data && fetcher.data.success) {
-    Swal.fire({
-      icon: "success",
-      title: "Success",
-      text: "Expense added successfully!",
-    });
-    navigate("/expenses");
+  function handleCategoryChange(event: React.ChangeEvent<HTMLSelectElement>) {
+    const selectedValue = event.target.value;
+    if (
+      selectedValue &&
+      selectedValue !== "choose category" &&
+      !categoryIds.includes(selectedValue)
+    ) {
+      setCategories((prev: string[]) => [...prev, selectedValue]);
+    }
   }
 
   return (
@@ -83,25 +95,42 @@ export default function AddExpense() {
           <label className="font-semibold" htmlFor="name">
             Title
           </label>
-          <Input name="name" type="text" id="name" placeholder="Groceries" />
+          <Input
+            name="name"
+            type="text"
+            id="name"
+            placeholder="Groceries"
+            required
+          />
         </div>
         <div className="flex flex-col gap-y-2 w-full md:w-[70%]">
           <label className="font-semibold" htmlFor="price">
             Price
           </label>
-          <Input name="price" id="price" type="number" placeholder="$15" />
+          <Input
+            name="price"
+            id="price"
+            type="number"
+            placeholder="$15"
+            required
+          />
         </div>
         <div className="flex flex-col gap-y-2 w-full md:w-[70%]">
           <label className="font-semibold" htmlFor="categoryIds">
             Categories
           </label>
           <select
-            name="categoryIds"
             id="categoryIds"
             className="text-sm border-1 border-stone-800 p-2 rounded-md"
+            onChange={handleCategoryChange}
           >
+            <option value="choose category" disabled>
+              Choose category
+            </option>
             {isLoading ? (
-              <option value="">Loading categories...</option>
+              <option value="" disabled>
+                Loading categories...
+              </option>
             ) : categories.length > 0 ? (
               categories.map((category) => (
                 <option key={category.category_id} value={category.category_id}>
@@ -109,9 +138,34 @@ export default function AddExpense() {
                 </option>
               ))
             ) : (
-              <option value="">No categories available</option>
+              <option value="" disabled>
+                No categories available
+              </option>
             )}
           </select>
+          {categoryIds.length > 0 && (
+            <div className="flex gap-x-1 gap-y-2 flex-wrap max-w-[70%]">
+              {categoryIds.map((id: string) => (
+                <div
+                  className="flex items-center gap-2 px-1 rounded-md border-stone-300 border-1 text-black"
+                  key={id}
+                >
+                  <Button
+                    type="button"
+                    onClick={() =>
+                      setCategories((prev) =>
+                        prev.filter((catId) => catId !== id)
+                      )
+                    }
+                  >
+                    {categories.find((cat) => cat.category_id === id)
+                      ?.cat_name || "Unknown Category"}
+                    <FaTimes className="text-red-500" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
         <div className="flex flex-col gap-y-2 w-full md:w-[70%]">
           <label className="font-semibold" htmlFor="description">
@@ -128,21 +182,34 @@ export default function AddExpense() {
             type="date"
             id="date"
             defaultValue={new Date().toISOString().split("T")[0]}
+            required
           />
         </div>
         <div className="flex flex-col gap-y-2 w-full md:w-[70%]">
           <label className="font-semibold" htmlFor="quantity">
             Quantity
           </label>
-          <Input name="quantity" type="number" id="quantity" defaultValue={1} />
+          <Input
+            name="quantity"
+            type="number"
+            id="quantity"
+            defaultValue={1}
+            required
+          />
         </div>
         <div className="flex flex-col gap-y-2 w-full md:w-[70%]">
           <label className="font-semibold" htmlFor="currency">
-            currency
+            Currency
           </label>
-          <Input name="currency" type="text" id="currency" defaultValue="USD" />
+          <Input
+            name="currency"
+            type="text"
+            id="currency"
+            defaultValue="USD"
+            required
+          />
         </div>
-        <div className="w-full mt-5 flex flex-col md:w-[70%]">
+        <div className="flex flex-col gap-y-2 w-full md:w-[70%]">
           <Button
             variant="secondary"
             className="bg-stone-800 text-white"
@@ -153,6 +220,9 @@ export default function AddExpense() {
               : "Create"}
           </Button>
         </div>
+        {categoryIds.map((id) => (
+          <Input key={id} type="hidden" name="categoryIds[]" value={id} />
+        ))}
       </fetcher.Form>
     </div>
   );
