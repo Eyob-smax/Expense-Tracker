@@ -2,6 +2,7 @@ import type { ComponentProps } from "react";
 import { Table } from "./ui/table";
 import type { TCategory, TExpense } from "../types/types";
 import { useNavigate } from "react-router-dom";
+import { Button } from "./ui/button";
 
 type TTableProps = {
   headerArrays: string[];
@@ -38,11 +39,7 @@ export default function TableComponent({
         {forWhich === "expense" ? (
           <tbody className="text-[#61758A] ">
             {(bodyArrays as TExpense[]).map((row) => (
-              <tr
-                key={row.expense_id}
-                onClick={() => navigateToDatails(row.expense_id)}
-                className="border-b border-[#E4E7EC]"
-              >
+              <tr key={row.expense_id} className="border-b border-[#E4E7EC]">
                 <td className="px-4 py-2">
                   {new Date(row.date).toLocaleDateString("en-US", {
                     month: "short",
@@ -50,10 +47,26 @@ export default function TableComponent({
                     year: "numeric",
                   })}
                 </td>
-                <td className="px-4 py-2">{row.name}</td>
-                <td className="px-4 py-2">{row.description || "-"}</td>
-                <td className="px-4 py-2">{row.amount}</td>
-                <td className="px-4 py-2">{row.currency}</td>
+                <td className="px-4 py-2 max-w-[50px] overflow-x-hidden text-ellipsis">
+                  {row.name}
+                </td>
+                <td className="px-4 py-2  max-w-[50px] overflow-x-hidden text-ellipsis text-nowrap">
+                  {row.description || "-"}
+                </td>
+                <td className="px-4 py-2 max-w-[50px] overflow-x-hidden text-ellipsis">
+                  {row.amount}
+                </td>
+                <td className="px-4 py-2 max-w-[50px] overflow-x-hidden text-ellipsis">
+                  {row.currency}
+                </td>
+                <td className="px-4 py-2 max-w-[50px] overflow-x-hidden text-ellipsis">
+                  <Button
+                    onClick={() => navigateToDatails(row.expense_id)}
+                    className="bg-stone-800 px-5 cursor-pointer text-white text-center rounded-md"
+                  >
+                    View
+                  </Button>
+                </td>
               </tr>
             ))}
           </tbody>

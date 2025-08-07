@@ -29,7 +29,7 @@ export default function AddExpense() {
   const actionData = useActionData() as { error?: string } | undefined;
   const navigation = useNavigation();
   const [categoryIds, setCategories] = useState<string[]>([]);
-
+  const [screenWidth, setScreenWidth] = useState(window.innerWidth);
   useEffect(() => {
     if (categories.length === 0) {
       (async () => {
@@ -48,6 +48,15 @@ export default function AddExpense() {
     }
   }, [categories, dispatch, navigate]);
 
+  useEffect(() => {
+    const handleResize = () => {
+      setScreenWidth(window.innerWidth);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [categories]);
   useEffect(() => {
     if (fetcher.data && fetcher.data.error) {
       Swal.fire({
@@ -115,7 +124,7 @@ export default function AddExpense() {
             required
           />
         </div>
-        <div className="flex flex-col gap-y-2 w-full md:w-[70%]">
+        <div className="flex self-start flex-col gap-y-2 w-full md:w-[70%]">
           <label className="font-semibold" htmlFor="categoryIds">
             Categories
           </label>
@@ -124,7 +133,7 @@ export default function AddExpense() {
             className="text-sm border-1 border-stone-800 p-2 rounded-md"
             onChange={handleCategoryChange}
           >
-            <option value="choose category" disabled>
+            <option value="choose category" disabled selected>
               Choose category
             </option>
             {isLoading ? (
@@ -143,7 +152,7 @@ export default function AddExpense() {
               </option>
             )}
           </select>
-          {categoryIds.length > 0 && (
+          {categoryIds.length > 0 && screenWidth < 600 && (
             <div className="flex gap-x-1 gap-y-2 flex-wrap max-w-[70%]">
               {categoryIds.map((id: string) => (
                 <div
@@ -210,6 +219,18 @@ export default function AddExpense() {
           />
         </div>
         <div className="flex flex-col gap-y-2 w-full md:w-[70%]">
+          <label className="font-semibold" htmlFor="priority">
+            Priority
+          </label>
+          <Input
+            name="priority"
+            type="text"
+            id="priority"
+            defaultValue="Low"
+            required
+          />
+        </div>
+        <div className="flex flex-col gap-y-2 w-full md:w-[70%]">
           <Button
             variant="secondary"
             className="bg-stone-800 text-white"
@@ -220,10 +241,33 @@ export default function AddExpense() {
               : "Create"}
           </Button>
         </div>
-        {categoryIds.map((id) => (
-          <Input key={id} type="hidden" name="categoryIds[]" value={id} />
-        ))}
+        <Input
+          type="hidden"
+          name="categoryIds"
+          value={JSON.stringify(categoryIds)}
+        />
       </fetcher.Form>
+      {screenWidth > 600 && categoryIds.length > 0 && (
+        <div className="absolute top-[19%] text-sm  p-2 rounded-md left-[83%] w-[200px] space-y-3 space-x-3">
+          {categoryIds.map((id: string) => (
+            <div
+              className="flex items-center gap-2 px-1 rounded-md border-stone-300 border-1 text-black"
+              key={id}
+            >
+              <Button
+                type="button"
+                onClick={() =>
+                  setCategories((prev) => prev.filter((catId) => catId !== id))
+                }
+              >
+                {categories.find((cat) => cat.category_id === id)?.cat_name ||
+                  "Unknown Category"}
+                <FaTimes className="text-red-500" />
+              </Button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

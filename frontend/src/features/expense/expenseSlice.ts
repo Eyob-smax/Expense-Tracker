@@ -34,8 +34,6 @@ export const addExpense = createAsyncThunk(
     if (error) {
       return rejectWithValue("Failed to add expense");
     }
-    console.log("Expense added successfully:", data);
-    console.log("Expense data:", data);
     return data ? data[0] : null;
   }
 );

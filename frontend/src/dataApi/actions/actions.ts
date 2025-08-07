@@ -106,11 +106,18 @@ export async function addExpenseAction({ request }: { request: Request }) {
   const formData = await request.formData();
   const name = formData.get("name") as string;
   const price = formData.get("price") as string;
-  const categoryIds = formData.getAll("categoryIds") as string[];
+  const categoryIds = (formData.get("categoryIds") as string)
+    ? JSON.parse(formData.get("categoryIds") as string)
+    : [];
   const description = formData.get("description") as string;
   const date = formData.get("date") as string;
   const quantity = formData.get("quantity") as string;
   const currency = formData.get("currency") as string;
+  const priority = formData.get("priority") as "Low" | "Medium" | "High";
+
+  if (categoryIds.includes("choose category")) {
+    return { success: false, error: "Please select a valid category" };
+  }
 
   if (!name || !price || !date) {
     return { success: false, error: "Title, price, and date are required" };
@@ -121,7 +128,6 @@ export async function addExpenseAction({ request }: { request: Request }) {
     if (userError || !userData.user) {
       return { success: false, error: "User not authenticated" };
     }
-    console.log("categoryIds:", categoryIds);
     if (categoryIds.length > 0) {
       const { data: validCategories, error: categoriesError } = await supabase
         .from("category")
@@ -147,6 +153,7 @@ export async function addExpenseAction({ request }: { request: Request }) {
           name,
           user_id: userData.user.id,
           quantity: Number(quantity) || 1,
+          priority: priority || "Low",
         })
       )
       .unwrap();

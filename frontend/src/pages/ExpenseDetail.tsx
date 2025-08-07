@@ -59,7 +59,6 @@ export default function ExpenseDetail() {
       text: "Error fetching expense data",
     });
   }
-
   return (
     <div>
       <Header title="Expense Tracker" linksOption={ExpenseDetailLinksOption} />
@@ -87,12 +86,19 @@ export default function ExpenseDetail() {
           </div>
           <div className="py-4 mt-5 border-t-2 border-t-[#E5E8EB]">
             <p className="text-sm text-[#6B7280]">Category</p>
-            <p className="text-stone-800 text-sm font-semibold">
+            <p className="text-stone-800 text-sm font-semibold space-y-1 space-x-1">
               {currentExpense?.category_IDs.map((categoryId: string) => {
                 const cat = categories.find(
                   (cat: TCategory) => cat.category_id === categoryId
                 );
-                return cat ? <span>{cat.cat_name}</span> : null;
+                return cat ? (
+                  <span
+                    className="flex items-center gap-2 px-1 rounded-md border-stone-300 border-1 text-black w-fit"
+                    key={cat.category_id}
+                  >
+                    {cat.cat_name}
+                  </span>
+                ) : null;
               })}
             </p>
           </div>

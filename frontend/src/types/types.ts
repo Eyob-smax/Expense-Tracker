@@ -20,6 +20,7 @@ export interface TExpense {
   user_id: string;
   quantity?: number;
   category_IDs: string[];
+  priority: "Low" | "Medium" | "High";
 }
 
 export interface TExpenseInitialState {

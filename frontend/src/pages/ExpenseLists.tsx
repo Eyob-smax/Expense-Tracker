@@ -7,7 +7,7 @@ import { useResizer } from "../hooks/useResizer";
 import { v4 as uuidv4 } from "uuid";
 import type { TAppDispatch, TRootState } from "../app/store";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ChangeEvent } from "react";
 import { fetchExpenses } from "../features/expense/expenseSlice";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
@@ -28,6 +28,20 @@ export default function ExpenseLists() {
   const dispatch = useDispatch<TAppDispatch>();
   const navigate = useNavigate();
   const [filteredExpenses, setFilteredExpenses] = useState<TExpense[]>([]);
+
+  function searchExpense(e: ChangeEvent<HTMLInputElement>) {
+    const value = e.target.value.toLowerCase();
+    setFilteredExpenses(
+      expenses.filter((expense) => {
+        const nameFilter = expense.name.toLowerCase().includes(value);
+        const descriptionFilter = expense.description
+          ?.toLowerCase()
+          .includes(value);
+        const amountFilter = expense.amount === Number(value);
+        return nameFilter || descriptionFilter || amountFilter ? true : false;
+      })
+    );
+  }
 
   useEffect(() => {
     (async () => {
@@ -71,16 +85,17 @@ export default function ExpenseLists() {
           type="text"
           className="bg-[#F2F2F5] text-sm border-1 border-[#dbe0e5]"
           placeholder="Search Expenses"
+          onChange={searchExpense}
         />
 
         <TableComponent
           ref={elRef}
           headerArrays={[
             "Date",
-            "Category",
+            "Name",
             "Description",
             "Amount",
-            "Status",
+            "Currency",
             "Detail",
           ]}
           bodyArrays={filteredExpenses}
