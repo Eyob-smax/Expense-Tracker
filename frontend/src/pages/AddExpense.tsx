@@ -79,7 +79,7 @@ export default function AddExpense() {
   return (
     <div>
       <Header title="Expense Tracker" linksOption={addExpenselinksOption} />
-      <h1 className="text-[22px] font-bold sm:pt-5 pt-10 sm:pb-5 pb-14 w-[80%] mx-auto">
+      <h1 className="text-[22px] font-bold sm:pt-5 pt-5 sm:pb-5 pb-5 w-[80%] mx-auto">
         Add Expense
       </h1>
       {actionData?.error && (

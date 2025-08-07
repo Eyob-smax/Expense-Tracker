@@ -122,7 +122,6 @@ export async function addExpenseAction({ request }: { request: Request }) {
       return { success: false, error: "User not authenticated" };
     }
     console.log("categoryIds:", categoryIds);
-    // Validate categoryIds
     if (categoryIds.length > 0) {
       const { data: validCategories, error: categoriesError } = await supabase
         .from("category")

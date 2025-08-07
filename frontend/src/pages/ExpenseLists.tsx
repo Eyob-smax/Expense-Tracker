@@ -75,10 +75,18 @@ export default function ExpenseLists() {
 
         <TableComponent
           ref={elRef}
-          headerArrays={["Date", "Category", "Description", "Amount", "Status"]}
+          headerArrays={[
+            "Date",
+            "Category",
+            "Description",
+            "Amount",
+            "Status",
+            "Detail",
+          ]}
           bodyArrays={filteredExpenses}
           className="border border-[#dbe0e5] mt-3 rounded-2xl overflow-y-auto"
           style={{ maxHeight: `${visibleHeight}px` }}
+          pathForBody={"/detail"}
         />
       </div>
     </div>

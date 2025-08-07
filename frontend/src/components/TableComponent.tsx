@@ -1,19 +1,28 @@
 import type { ComponentProps } from "react";
 import { Table } from "./ui/table";
 import type { TCategory, TExpense } from "../types/types";
+import { useNavigate } from "react-router-dom";
 
 type TTableProps = {
   headerArrays: string[];
   bodyArrays: TExpense[] | TCategory[];
   forWhich?: "expense" | "category";
+  pathForBody: "/expense" | "/category" | "/detail";
 };
 
 export default function TableComponent({
   headerArrays,
   bodyArrays,
   forWhich = "expense",
+  pathForBody = "/detail",
   ...rest
 }: TTableProps & ComponentProps<"div">) {
+  const navigate = useNavigate();
+  function navigateToDatails(path: string) {
+    if (pathForBody === "/detail") {
+      navigate(`${path}`);
+    }
+  }
   return (
     <div {...rest}>
       <Table className="transaction_table ">
@@ -29,7 +38,11 @@ export default function TableComponent({
         {forWhich === "expense" ? (
           <tbody className="text-[#61758A] ">
             {(bodyArrays as TExpense[]).map((row) => (
-              <tr key={row.expense_id} className="border-b border-[#E4E7EC]">
+              <tr
+                key={row.expense_id}
+                onClick={() => navigateToDatails(row.expense_id)}
+                className="border-b border-[#E4E7EC]"
+              >
                 <td className="px-4 py-2">
                   {new Date(row.date).toLocaleDateString("en-US", {
                     month: "short",

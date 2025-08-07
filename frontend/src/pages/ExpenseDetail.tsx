@@ -1,7 +1,16 @@
+import { useEffect, useState } from "react";
 import Header from "../components/Header";
 import { Button } from "../components/ui/button";
 import useCheckAuth from "../hooks/useCheckAuth";
 import { ProfileIcon } from "../utils/constants";
+import { useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import type { TAppDispatch, TRootState } from "../app/store";
+import type { TCategory, TExpense } from "../types/types";
+import { fetchCategories } from "../features/category/categorySlice";
+import { fetchExpenses } from "../features/expense/expenseSlice";
+import LoadingScreen from "./LoadingScreen";
+import Swal from "sweetalert2";
 
 const ExpenseDetailLinksOption = [
   { label: "Home", path: "/" },
@@ -12,6 +21,44 @@ const ExpenseDetailLinksOption = [
 ];
 export default function ExpenseDetail() {
   useCheckAuth();
+  const id = useParams().id;
+  const dispatch = useDispatch<TAppDispatch>();
+  const {
+    expenses,
+    isLoading: load,
+    error: err,
+  } = useSelector((state: TRootState) => state.expense);
+  const { categories, isLoading, error } = useSelector(
+    (state: TRootState) => state.category
+  );
+  const [currentExpense, setCurrentExpense] = useState<TExpense | null>(
+    expenses.find((expense) => expense.expense_id === id) || null
+  );
+
+  useEffect(() => {
+    dispatch(fetchCategories());
+  }, [dispatch]);
+  useEffect(() => {
+    dispatch(fetchExpenses());
+  }, [dispatch]);
+
+  useEffect(() => {
+    setCurrentExpense(
+      expenses.find((expense) => expense.expense_id === id) || null
+    );
+  }, [expenses, id]);
+
+  if (isLoading || load) {
+    return <LoadingScreen />;
+  }
+
+  if (err || error) {
+    Swal.fire({
+      icon: "error",
+      title: "Network Error",
+      text: "Error fetching expense data",
+    });
+  }
 
   return (
     <div>
@@ -19,30 +66,40 @@ export default function ExpenseDetail() {
 
       <div className="mt-10 w-[90%]  mx-auto">
         <h2 className="text-sm md:w-[80%] mx-auto">
-          Expenses/ <span className="font-semibold">Coffee</span>
+          Expenses/{" "}
+          <span className="font-semibold">{currentExpense?.name}</span>
         </h2>
         <h1 className="text-[22px] md:w-[80%] mx-auto mt-5 font-bold">
-          Coffee
+          {currentExpense?.name}
         </h1>
         <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr_1fr] mx-auto gap-x-5 mt-5 w-[100%] md:w-[80%]">
           <div className="py-4 mt-5 border-t-2 border-t-[#E5E8EB]">
             <p className="text-sm text-[#6B7280]">Amount</p>
-            <p className="text-stone-800 text-sm font-semibold">$2.5</p>
+            <p className="text-stone-800 text-sm font-semibold">
+              {currentExpense?.amount}
+            </p>
           </div>
           <div className="py-4 md:col-span-2 mt-5 border-t-2 border-t-[#E5E8EB]">
             <p className="text-sm text-[#6B7280]">Date</p>
-            <p className="text-stone-800 text-sm font-semibold">02-01-2025</p>
+            <p className="text-stone-800 text-sm font-semibold">
+              {currentExpense?.date}
+            </p>
           </div>
           <div className="py-4 mt-5 border-t-2 border-t-[#E5E8EB]">
             <p className="text-sm text-[#6B7280]">Category</p>
             <p className="text-stone-800 text-sm font-semibold">
-              Food & Drinks
+              {currentExpense?.category_IDs.map((categoryId: string) => {
+                const cat = categories.find(
+                  (cat: TCategory) => cat.category_id === categoryId
+                );
+                return cat ? <span>{cat.cat_name}</span> : null;
+              })}
             </p>
           </div>
           <div className="py-4 md:col-span-2 mt-5 border-t-2 border-t-[#E5E8EB]">
             <p className="text-sm text-[#6B7280]">Description</p>
             <p className="text-stone-800 text-sm font-semibold ">
-              Morning coffee at a local cafe
+              {currentExpense?.description || "-"}
             </p>
           </div>
           <div className="pt-4 mt-5 border-t-2 border-t-[#E5E8EB]">
