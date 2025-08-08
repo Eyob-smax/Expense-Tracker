@@ -130,10 +130,11 @@ export default function AddExpense() {
           </label>
           <select
             id="categoryIds"
+            defaultValue={"choose category"}
             className="text-sm border-1 border-stone-800 p-2 rounded-md"
             onChange={handleCategoryChange}
           >
-            <option value="choose category" disabled selected>
+            <option value="choose category" disabled>
               Choose category
             </option>
             {isLoading ? (

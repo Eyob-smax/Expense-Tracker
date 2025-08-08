@@ -42,7 +42,7 @@ export const deleteExpenses = createAsyncThunk(
   "expenses/removeExpense",
   async (id: string, { rejectWithValue }) => {
     const { data, error } = await supabase
-      .from("expenses")
+      .from("expense")
       .delete()
       .match({ id });
 
@@ -60,7 +60,7 @@ export const fetchExpenseById = createAsyncThunk(
   "expenses/fetchExpenseById",
   async (id: string, { rejectWithValue }) => {
     const { data, error } = await supabase
-      .from("expenses")
+      .from("expense")
       .select("*")
       .eq("id", id);
 
@@ -82,9 +82,9 @@ export const updateExpense = createAsyncThunk(
     { rejectWithValue }
   ) => {
     const { data, error } = await supabase
-      .from("expenses")
+      .from("expense")
       .update(updates)
-      .match({ id });
+      .match({ expense_id: id });
 
     if (error) {
       console.error("Error updating expense:", error);
@@ -100,18 +100,26 @@ export const updateExpense = createAsyncThunk(
 export const deleteExpenseById = createAsyncThunk(
   "expenses/deleteExpenseById",
   async (id: string, { rejectWithValue }) => {
-    const { data, error } = await supabase
-      .from("expenses")
-      .delete()
-      .match({ id });
-    if (error) {
-      console.error("Error deleting expense:", error);
-      return rejectWithValue("Failed to delete expense");
+    if (!id || typeof id !== "string") {
+      return rejectWithValue("Invalid expense ID");
     }
-    if (!data) {
-      return rejectWithValue("Expense not found");
+
+    try {
+      const { error } = await supabase
+        .from("expense")
+        .delete()
+        .eq("expense_id", id);
+
+      if (error) {
+        return rejectWithValue(error.message || "Failed to delete expense");
+      }
+
+      return [id];
+    } catch (err) {
+      return rejectWithValue(
+        err instanceof Error ? err.message : "An unexpected error occurred"
+      );
     }
-    return { id };
   }
 );
 
@@ -165,6 +173,22 @@ const expenseSlice = createSlice({
         );
       })
       .addCase(deleteExpenses.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(fetchExpenseById.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(deleteExpenseById.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(deleteExpenseById.fulfilled, (state, { payload }) => {
+        state.isLoading = false;
+        state.expenses = state.expenses.filter(
+          (expense: TExpense) => expense.expense_id !== (payload as string[])[0]
+        );
+      })
+      .addCase(deleteExpenseById.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       });
