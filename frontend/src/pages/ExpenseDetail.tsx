@@ -83,7 +83,8 @@ export default function ExpenseDetail() {
         text:
           typeof err === "string"
             ? err
-            : (err as any)?.message || "Failed to delete expense",
+            : (err as { message?: string })?.message ||
+              "Failed to delete expense",
       });
     } finally {
       setIsLoading(false);
