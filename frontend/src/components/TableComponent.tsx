@@ -75,9 +75,13 @@ export default function TableComponent({
             {(bodyArrays as TCategory[]).map((row: TCategory) => (
               <tr key={row.category_id} className="border-b border-[#E4E7EC]">
                 <td className="px-4 py-2">{row.cat_name}</td>
-                <td className="px-4 py-2">{row.user_id}</td>
+                <td className="px-4 py-2">{row.relevance}</td>
                 <td className="px-4 py-2">{row.icon}</td>
-                <td className="px-4 py-2">Edit/Delete</td>
+                <td className="px-4 py-2 max-w-[50px] overflow-x-hidden text-ellipsis">
+                  <Button className="bg-stone-800 px-5 cursor-pointer text-white text-center rounded-md">
+                    View
+                  </Button>
+                </td>
               </tr>
             ))}
           </tbody>

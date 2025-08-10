@@ -32,7 +32,8 @@ export default function Categories() {
   const dispatch = useDispatch<TAppDispatch>();
   const { data: categoriesData, error: categoriesError } = useLoaderData();
   const isLoading = useNavigation().state === "loading";
-
+  const isSubmitting = useNavigation().state === "submitting";
+  const isIdle = useNavigation().state === "idle";
   if (categoriesError) {
     Swal.fire({
       icon: "error",
@@ -47,7 +48,7 @@ export default function Categories() {
     }
   }, [categoriesData, dispatch]);
 
-  if (isLoading) {
+  if (isLoading || isSubmitting || !isIdle) {
     return <LoadingScreen />;
   }
 
@@ -65,7 +66,8 @@ export default function Categories() {
         className="border w-[80%] mx-auto border-[#dbe0e5] mt-3 rounded-2xl overflow-y-auto shadow-sm"
         bodyArrays={categoriesData || []}
         forWhich="category"
-        headerArrays={["category", "user_id", "icon", "actions"]}
+        headerArrays={["category", "relevance", "icon", "details"]}
+        pathForBody="/category"
       />
     </div>
   );

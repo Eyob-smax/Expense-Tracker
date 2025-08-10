@@ -2,6 +2,7 @@ import { supabase } from "../../supabase/supabaseClient";
 import { store } from "../../app/store";
 import { addExpense, updateExpense } from "../../features/expense/expenseSlice";
 import type { Params } from "react-router-dom";
+import { addCategory } from "../../features/category/categorySlice";
 
 export async function formAction({ request }: { request: Request }) {
   const formData = await request.formData();
@@ -246,6 +247,43 @@ export async function editExpenseAction({
   } catch (err) {
     const errorMessage =
       err instanceof Error ? err.message : "Failed to edit expense";
+    return { success: false, error: errorMessage };
+  }
+}
+
+export default async function addCategoryAction({
+  request,
+}: {
+  request: Request;
+}) {
+  const formData = await request.formData();
+  const name = formData.get("category_name") as string;
+  const relevance = formData.get("relevance") as "High" | "Low" | "Medium";
+  const icon = formData.get("icon_name") as string;
+
+  if (!name) {
+    return { success: false, error: "Category name is required" };
+  }
+
+  try {
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+    if (userError || !userData.user) {
+      return { success: false, error: "User not authenticated" };
+    }
+
+    await store
+      .dispatch(
+        addCategory({
+          icon,
+          cat_name: name,
+          relevance,
+        })
+      )
+      .unwrap();
+    return { success: true, message: "Category added successfully" };
+  } catch (err) {
+    const errorMessage =
+      err instanceof Error ? err.message : "Failed to add category";
     return { success: false, error: errorMessage };
   }
 }

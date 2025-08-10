@@ -24,24 +24,26 @@ export const fetchCategories = createAsyncThunk(
 
 export const addCategory = createAsyncThunk(
   "categories/addCategory",
-  async (categoryData: { name: string }, { rejectWithValue }) => {
+  async (categoryData: Partial<TCategory>, { rejectWithValue }) => {
     const { data: userData, error: userError } = await supabase.auth.getUser();
-    if (userError) {
-      console.error("Error fetching user data:", userError);
-      return rejectWithValue("Failed to fetch user data");
+    if (userError || !userData.user) {
+      return rejectWithValue("User not authenticated");
     }
 
-    const { data, error } = await supabase.from("category").insert({
-      ...categoryData,
-      user_id: userData?.user?.id,
-    });
-
-    if (error) {
-      console.error("Error adding category:", error);
+    const { data, error } = await supabase
+      .from("category")
+      .insert({
+        ...categoryData,
+        user_id: userData.user.id,
+      })
+      .select("*");
+    if (!error) {
       return rejectWithValue("Failed to add category");
     }
-
-    return data;
+    if (!data || (data as TCategory[]).length === 0) {
+      return rejectWithValue("No category data returned");
+    }
+    return data[0] as TCategory;
   }
 );
 
@@ -142,11 +144,7 @@ const categorySlice = createSlice({
       })
       .addCase(addCategory.fulfilled, (state, action) => {
         state.isLoading = false;
-        if (!action.payload) {
-          state.error = "Failed to add category";
-        } else {
-          state.categories.push(action.payload);
-        }
+        state.categories.push(action.payload);
       })
       .addCase(addCategory.rejected, (state, action) => {
         state.isLoading = false;

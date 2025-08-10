@@ -5,7 +5,7 @@ import { Provider } from "react-redux";
 import { store } from "./app/store";
 import Wrapper from "./pages/Wrapper";
 import LoadingScreen from "./pages/LoadingScreen";
-import {
+import addCategoryAction, {
   addExpenseAction,
   editExpenseAction,
   formAction,
@@ -56,7 +56,7 @@ const router = createBrowserRouter([
   {
     path: "/categories/new",
     element: <AddCategories />,
-    action: addExpenseAction,
+    action: addCategoryAction,
   },
   { path: "/categories/:id", element: <Categories /> },
   { path: "/about", element: <About /> },

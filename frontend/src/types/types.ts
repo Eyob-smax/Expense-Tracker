@@ -34,7 +34,7 @@ export interface TCategory {
   category_id: string;
   icon: string;
   cat_name: string;
-  relevance: "high" | "medium" | "low";
+  relevance: "High" | "Medium" | "Low";
 }
 
 export interface TCategoryInitialState {
