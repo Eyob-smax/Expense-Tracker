@@ -1,114 +1,97 @@
-import { useFetcher, useActionData, useNavigation } from "react-router-dom";
-import Header from "../components/Header";
-import { ProfileIcon } from "../utils/constants";
-import { Input } from "../components/ui/input";
-import { Button } from "../components/ui/button";
-import { useDispatch, useSelector } from "react-redux";
-import type { TAppDispatch, TRootState } from "../app/store";
-import { useEffect, useState } from "react";
-import { fetchCategories } from "../features/category/categorySlice";
-import Swal from "sweetalert2";
-import { useNavigate } from "react-router-dom";
+import { useFetcher } from "react-router-dom";
+import type { TExpense } from "../types/types";
+import { Input } from "./ui/input";
+import { useSelector } from "react-redux";
+import type { TRootState } from "../app/store";
 import { FaTimes } from "react-icons/fa";
+import { Button } from "./ui/button";
+import React, { useEffect, useState } from "react";
+import Swal from "sweetalert2";
 
-const addExpenselinksOption = [
-  { label: "Home", path: "/" },
-  { label: "Expenses", path: "/expenses" },
-  { label: "Settings", path: "/settings" },
-  { label: "Analytics", path: "/analytics" },
-  ProfileIcon,
-];
-
-export default function AddExpense() {
-  const fetcher = useFetcher();
+function EditExpense({
+  currentExpense,
+  onClose,
+}: {
+  currentExpense: TExpense;
+  onClose: () => void;
+}) {
   const { categories, isLoading } = useSelector(
     (state: TRootState) => state.category
   );
-  const dispatch = useDispatch<TAppDispatch>();
-  const navigate = useNavigate();
-  const actionData = useActionData() as { error?: string } | undefined;
-  const navigation = useNavigation();
-  const [categoryIds, setCategories] = useState<string[]>([]);
+  const [categoryIds, setCategories] = useState<string[]>(
+    currentExpense.category_IDs || []
+  );
+  const fetcher = useFetcher({
+    key: `edit-expense-${currentExpense.expense_id}`,
+  });
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
-  useEffect(() => {
-    if (categories.length === 0) {
-      (async () => {
-        try {
-          await dispatch(fetchCategories()).unwrap();
-        } catch (err) {
-          console.error("Failed to fetch categories:", err);
-          Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: "Failed to fetch categories.",
-          });
-          navigate("/categories");
-        }
-      })();
-    }
-  }, [categories, dispatch, navigate]);
 
-  useEffect(() => {
-    const handleResize = () => {
-      setScreenWidth(window.innerWidth);
-    };
-    window.addEventListener("resize", handleResize);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
-  useEffect(() => {
-    if (fetcher.data && fetcher.data.error) {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: fetcher.data.error,
-      });
-    } else if (fetcher.data && fetcher.data.success) {
-      Swal.fire({
-        icon: "success",
-        title: "Success",
-        text: "Expense added successfully!",
-      });
-      navigate("/expenses");
-    }
-  }, [fetcher.data, navigate]);
-
-  function handleCategoryChange(event: React.ChangeEvent<HTMLSelectElement>) {
-    const selectedValue = event.target.value;
+  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedCategoryId = e.target.value;
     if (
-      selectedValue &&
-      selectedValue !== "choose category" &&
-      !categoryIds.includes(selectedValue)
+      selectedCategoryId &&
+      selectedCategoryId !== "choose category" &&
+      !categoryIds.includes(selectedCategoryId)
     ) {
-      setCategories((prev: string[]) => [...prev, selectedValue]);
+      setCategories((prev) => [...prev, selectedCategoryId]);
     }
-  }
+  };
+
+  useEffect(() => {
+    const handleResize = () => setScreenWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    setCategories(currentExpense.category_IDs || []);
+  }, [currentExpense]);
+
+  useEffect(() => {
+    if (fetcher.state === "idle" && fetcher.data) {
+      if (fetcher.data.success) {
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "Expense updated successfully",
+          timer: 1500,
+        }).then(() => {
+          onClose();
+        });
+      } else if (fetcher.data.error) {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: fetcher.data.error || "Failed to update expense",
+        });
+      }
+    }
+  }, [fetcher.state, fetcher.data, onClose]);
 
   return (
-    <div>
-      <Header title="Expense Tracker" linksOption={addExpenselinksOption} />
-      <h1 className="text-[22px] font-bold sm:pt-5 pt-5 sm:pb-5 pb-5 w-[80%] mx-auto">
-        Add Expense
-      </h1>
-      {actionData?.error && (
-        <div style={{ color: "red" }}>{actionData.error}</div>
-      )}
+    <div className="w-[90%] overflow-auto md:w-[80%] mx-auto z-100 bg-white inset-0 h-[80%] absolute top-[12%] bottom-[10%]">
+      <div className="flex justify-between items-center p-4 border-b border-gray-200">
+        <h2 className="text-lg font-semibold">Edit Expense</h2>
+        <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+          <FaTimes />
+        </button>
+      </div>
 
       <fetcher.Form
-        method="POST"
-        action="/expenses/new"
-        className="w-[80%] md:grid md:grid-cols-2 gap-x-5 mx-auto space-y-5"
+        action={`/expenses/${currentExpense.expense_id}`}
+        method="post"
+        className="w-[70%] mx-[10%] my-3 md:grid md:grid-cols-2 gap-x-5 space-y-5"
       >
         <div className="flex flex-col gap-y-2 w-full md:w-[70%]">
-          <label className="font-semibold" htmlFor="name">
+          <label className="font-semibold" htmlFor="title">
             Title
           </label>
           <Input
-            name="name"
+            name="title"
+            id="title"
             type="text"
-            id="name"
             placeholder="Groceries"
+            defaultValue={currentExpense.name}
             required
           />
         </div>
@@ -121,6 +104,7 @@ export default function AddExpense() {
             id="price"
             type="number"
             placeholder="$15"
+            defaultValue={currentExpense.amount}
             required
           />
         </div>
@@ -130,7 +114,7 @@ export default function AddExpense() {
           </label>
           <select
             id="categoryIds"
-            defaultValue={"choose category"}
+            defaultValue="choose category"
             className="text-sm border-1 border-stone-800 p-2 rounded-md"
             onChange={handleCategoryChange}
           >
@@ -181,7 +165,13 @@ export default function AddExpense() {
           <label className="font-semibold" htmlFor="description">
             Description
           </label>
-          <Input name="description" id="description" placeholder="Optional" />
+          <Input
+            name="description"
+            id="description"
+            type="text"
+            placeholder="Enter description"
+            defaultValue={currentExpense.description || "-"}
+          />
         </div>
         <div className="flex flex-col gap-y-2 w-full md:w-[70%]">
           <label className="font-semibold" htmlFor="date">
@@ -189,34 +179,9 @@ export default function AddExpense() {
           </label>
           <Input
             name="date"
-            type="date"
             id="date"
-            defaultValue={new Date().toISOString().split("T")[0]}
-            required
-          />
-        </div>
-        <div className="flex flex-col gap-y-2 w-full md:w-[70%]">
-          <label className="font-semibold" htmlFor="quantity">
-            Quantity
-          </label>
-          <Input
-            name="quantity"
-            type="number"
-            id="quantity"
-            defaultValue={1}
-            required
-          />
-        </div>
-        <div className="flex flex-col gap-y-2 w-full md:w-[70%]">
-          <label className="font-semibold" htmlFor="currency">
-            Currency
-          </label>
-          <Input
-            name="currency"
-            type="text"
-            id="currency"
-            defaultValue="USD"
-            required
+            type="date"
+            defaultValue={currentExpense.date}
           />
         </div>
         <div className="flex flex-col gap-y-2 w-full md:w-[70%]">
@@ -226,33 +191,55 @@ export default function AddExpense() {
           <select
             name="priority"
             id="priority"
-            defaultValue={"Medium"}
+            defaultValue={currentExpense.priority || "Medium"}
             className="text-sm border-1 border-stone-800 p-2 rounded-md"
           >
-            <option value="Medium">Medium</option>
             <option value="Low">Low</option>
+            <option value="Medium">Medium</option>
             <option value="High">High</option>
           </select>
         </div>
         <div className="flex flex-col gap-y-2 w-full md:w-[70%]">
-          <Button
-            variant="secondary"
-            className="bg-stone-800 text-white"
-            disabled={navigation.state === "submitting"}
-          >
-            {navigation.state === "loading" || fetcher.state === "submitting"
-              ? "Adding..."
-              : "Create"}
-          </Button>
+          <label className="font-semibold" htmlFor="quantity">
+            Quantity
+          </label>
+          <Input
+            name="quantity"
+            id="quantity"
+            type="text"
+            placeholder="Enter quantity"
+            defaultValue={currentExpense.quantity || "1"}
+          />
+        </div>
+        <div className="flex flex-col gap-y-2 w-full md:w-[70%]">
+          <label className="font-semibold" htmlFor="currency">
+            Currency
+          </label>
+          <Input
+            name="currency"
+            id="currency"
+            type="text"
+            placeholder="Enter currency"
+            defaultValue={currentExpense.currency || "-"}
+          />
         </div>
         <Input
           type="hidden"
           name="categoryIds"
           value={JSON.stringify(categoryIds)}
         />
+        <div className="flex flex-col my-auto gap-y-2 w-full md:w-[70%]">
+          <Button
+            type="submit"
+            className="bg-stone-800 w-full mt-4 text-white px-4 py-2 rounded-md"
+            disabled={fetcher.state !== "idle"} // Disable during submission
+          >
+            {fetcher.state === "submitting" ? "Saving..." : "Save Changes"}
+          </Button>
+        </div>
       </fetcher.Form>
       {screenWidth > 600 && categoryIds.length > 0 && (
-        <div className="absolute top-[19%] text-sm  p-2 rounded-md left-[83%] w-[200px] space-y-3 space-x-3">
+        <div className="absolute top-[19%] text-sm p-2 rounded-md left-[73%] w-[200px] space-y-3 space-x-3">
           {categoryIds.map((id: string) => (
             <div
               className="flex items-center gap-2 px-1 rounded-md border-stone-300 border-1 text-black"
@@ -275,3 +262,5 @@ export default function AddExpense() {
     </div>
   );
 }
+
+export default React.memo(EditExpense);

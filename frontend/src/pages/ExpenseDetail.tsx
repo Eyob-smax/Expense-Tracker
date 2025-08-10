@@ -14,6 +14,8 @@ import {
 } from "../features/expense/expenseSlice";
 import LoadingScreen from "./LoadingScreen";
 import Swal from "sweetalert2";
+import EditExpense from "../components/EditExpense";
+import Overlay from "../components/Overlay";
 
 const ExpenseDetailLinksOption = [
   { label: "Home", path: "/" },
@@ -28,6 +30,7 @@ export default function ExpenseDetail() {
   const dispatch = useDispatch<TAppDispatch>();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [isEditModal, setEditModal] = useState(false);
   const {
     expenses,
     isLoading: load,
@@ -179,13 +182,30 @@ export default function ExpenseDetail() {
             </p>
           </div>
         </div>
+
         <div className="flex justify-center md:justify-end gap-x-8 md:gap-x-4 mt-5 w-[80%] mx-auto">
-          <Button className="bg-stone-800 text-white">Edit</Button>
+          <Button
+            onClick={() => setEditModal(true)}
+            className="bg-stone-800 text-white"
+          >
+            Edit
+          </Button>
           <Button onClick={deleteExpense} className="bg-blue-500 text-white">
             Delete
           </Button>
         </div>
       </div>
+
+      {isEditModal && currentExpense && (
+        <>
+          <Overlay />
+
+          <EditExpense
+            currentExpense={currentExpense}
+            onClose={() => setEditModal(false)}
+          />
+        </>
+      )}
     </div>
   );
 }

@@ -1,12 +1,19 @@
 import React, { StrictMode, Suspense } from "react";
-import { createRoot } from "react-dom/client";
+import { createRoot, Root } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router";
-import DailyAnalytics from "./pages/DailyAnalytics";
 import { Provider } from "react-redux";
 import { store } from "./app/store";
-import { addExpenseAction, formAction } from "./dataApi/actions/actions";
 import Wrapper from "./pages/Wrapper";
+import LoadingScreen from "./pages/LoadingScreen";
+import {
+  addExpenseAction,
+  editExpenseAction,
+  formAction,
+} from "./dataApi/actions/actions";
 import expenseLoader, { categoryLoader } from "./dataApi/loaders/loader";
+import DailyAnalytics from "./pages/DailyAnalytics";
+
+// lazy imports...
 const App = React.lazy(() => import("./App"));
 const UserForm = React.lazy(() => import("./pages/UserForm"));
 const Settings = React.lazy(() => import("./pages/Settings"));
@@ -18,92 +25,55 @@ const ExpenseDetail = React.lazy(() => import("./pages/ExpenseDetail"));
 const Categories = React.lazy(() => import("./pages/Categories"));
 const AddCategories = React.lazy(() => import("./pages/AddCategories"));
 const About = React.lazy(() => import("./pages/About"));
-const LoadingScreen = React.lazy(() => import("./pages/LoadingScreen"));
 const ExpenseLists = React.lazy(() => import("./pages/ExpenseLists"));
 const AnalyticsOverview = React.lazy(() => import("./pages/AnalyticsOverview"));
-
 const Home = React.lazy(() => import("./pages/Home"));
 
 const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <Home />,
-  },
-  {
-    path: "/void",
-    element: <App />,
-  },
-  {
-    path: "/login",
-    element: <UserForm type="login" />,
-    action: formAction,
-  },
-  {
-    path: "/signup",
-    element: <UserForm type="signup" />,
-    action: formAction,
-  },
-  {
-    path: "/settings",
-    element: <Settings />,
-  },
+  { path: "/", element: <Home /> },
+  { path: "/void", element: <App /> },
+  { path: "/login", element: <UserForm type="login" />, action: formAction },
+  { path: "/signup", element: <UserForm type="signup" />, action: formAction },
+  { path: "/settings", element: <Settings /> },
   {
     path: "/analytics",
     element: <AnalyticsOverview />,
     children: [
-      {
-        path: "daily",
-        element: <DailyAnalytics />,
-      },
-      {
-        path: "weekly",
-        element: <WeeklyAnalytics />,
-      },
-      {
-        path: "monthly",
-        element: <MonthlyAnalytics />,
-      },
+      { path: "daily", element: <DailyAnalytics /> },
+      { path: "weekly", element: <WeeklyAnalytics /> },
+      { path: "monthly", element: <MonthlyAnalytics /> },
     ],
   },
-  {
-    path: "/overview",
-    element: <ExpenseOverview />,
-    loader: expenseLoader,
-  },
-  {
-    path: "/expenses",
-    element: <ExpenseLists />,
-  },
+  { path: "/overview", element: <ExpenseOverview />, loader: expenseLoader },
+  { path: "/expenses", element: <ExpenseLists /> },
   {
     path: "/expenses/:id",
     element: <ExpenseDetail />,
+    action: editExpenseAction,
   },
-  {
-    path: "/expenses/new",
-    element: <AddExpense />,
-    action: addExpenseAction,
-  },
-  {
-    path: "/categories",
-    element: <Categories />,
-    loader: categoryLoader,
-  },
+  { path: "/expenses/new", element: <AddExpense />, action: addExpenseAction },
+  { path: "/categories", element: <Categories />, loader: categoryLoader },
   {
     path: "/categories/new",
     element: <AddCategories />,
     action: addExpenseAction,
   },
-  {
-    path: "/categories/:id",
-    element: <Categories />,
-  },
-  {
-    path: "/about",
-    element: <About />,
-  },
+  { path: "/categories/:id", element: <Categories /> },
+  { path: "/about", element: <About /> },
 ]);
 
-createRoot(document.getElementById("root")!).render(
+const container = document.getElementById("root")!;
+
+// 🔹 Keep the root across HMR reloads
+let root: Root;
+if (!("__reactRoot" in window)) {
+  // @ts-ignore
+  window.__reactRoot = createRoot(container);
+}
+// @ts-ignore
+root = window.__reactRoot;
+
+root.render(
   <StrictMode>
     <Provider store={store}>
       <Suspense fallback={<LoadingScreen />}>

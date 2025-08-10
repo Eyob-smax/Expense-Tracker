@@ -40,20 +40,11 @@ export const addExpense = createAsyncThunk(
 
 export const deleteExpenses = createAsyncThunk(
   "expenses/removeExpense",
-  async (id: string, { rejectWithValue }) => {
-    const { data, error } = await supabase
-      .from("expense")
-      .delete()
-      .match({ id });
-
+  async (_, { rejectWithValue }) => {
+    const { error } = await supabase.from("expense").delete();
     if (error) {
-      console.error("Error removing expense:", error);
       return rejectWithValue("Failed to remove expense");
     }
-    if (!data) {
-      return rejectWithValue("Expense not found");
-    }
-    return { id };
   }
 );
 export const fetchExpenseById = createAsyncThunk(
@@ -62,7 +53,7 @@ export const fetchExpenseById = createAsyncThunk(
     const { data, error } = await supabase
       .from("expense")
       .select("*")
-      .eq("id", id);
+      .eq("expense_id", id);
 
     if (error) {
       console.error("Error fetching expense by ID:", error);
@@ -78,22 +69,19 @@ export const fetchExpenseById = createAsyncThunk(
 export const updateExpense = createAsyncThunk(
   "expenses/updateExpense",
   async (
-    { id, ...updates }: { id: string; updates: Partial<TExpense> },
+    { id, updates }: { id: string; updates: Partial<TExpense> },
     { rejectWithValue }
   ) => {
     const { data, error } = await supabase
       .from("expense")
       .update(updates)
-      .match({ expense_id: id });
+      .eq("expense_id", id)
+      .select("*");
 
     if (error) {
-      console.error("Error updating expense:", error);
       return rejectWithValue("Failed to update expense");
     }
-    if (!data) {
-      return rejectWithValue("Expense not found");
-    }
-    return data;
+    return data[0];
   }
 );
 
@@ -161,16 +149,26 @@ const expenseSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload as string;
       })
-      .addCase(deleteExpenses.pending, (state) => {
+      .addCase(updateExpense.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(deleteExpenses.fulfilled, (state, action) => {
+      .addCase(updateExpense.fulfilled, (state, action) => {
         state.isLoading = false;
-        const { id } = action.payload;
-        state.expenses = state.expenses.filter(
-          (expense) => expense.expense_id !== id
+        const index = state.expenses.findIndex(
+          (expense) => expense.expense_id === action.payload.expense_id
         );
+        if (index !== -1) {
+          state.expenses[index] = action.payload;
+        }
+      })
+      .addCase(updateExpense.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(deleteExpenses.fulfilled, (state) => {
+        state.isLoading = false;
+        state.expenses = [];
       })
       .addCase(deleteExpenses.rejected, (state, action) => {
         state.isLoading = false;
