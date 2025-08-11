@@ -31,12 +31,12 @@ export default function AddCategories() {
 
   useEffect(() => {
     if (fetcher.data && fetcher.data.success) {
-      navigate("/categories");
       Swal.fire({
         icon: "success",
         title: "Successfully added",
         text: `The category has been added successfully`,
       });
+      navigate("/categories");
     }
   }, [fetcher.data, navigate]);
 
@@ -92,8 +92,8 @@ export default function AddCategories() {
               Relevance
             </label>
             <select
-              name="priority"
-              id="priority"
+              name="relevance"
+              id="relevance"
               defaultValue={"Medium"}
               className="text-sm border-1 border-stone-800 p-2 rounded-md"
             >
@@ -147,15 +147,17 @@ export default function AddCategories() {
             <Button
               type="button"
               onClick={backToCategories}
-              className="bg-[#EBF2EB] text-stone-800 font-semibold"
+              className="bg-[#EBF2EB] text-stone-800 cursor-pointer font-semibold"
             >
               Cancel
             </Button>
             <Button
-              className="bg-blue-500 text-white"
+              className="bg-blue-500 cursor-pointer text-white"
               disabled={fetcher.state !== "idle"}
             >
-              {fetcher.state === "submitting" ? "Creating..." : "Create"}
+              {fetcher.state === "submitting" || fetcher.state === "loading"
+                ? "Creating..."
+                : "Create"}
             </Button>
           </div>
         </fetcher.Form>

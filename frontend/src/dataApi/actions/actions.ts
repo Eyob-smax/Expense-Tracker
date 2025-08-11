@@ -2,7 +2,10 @@ import { supabase } from "../../supabase/supabaseClient";
 import { store } from "../../app/store";
 import { addExpense, updateExpense } from "../../features/expense/expenseSlice";
 import type { Params } from "react-router-dom";
-import { addCategory } from "../../features/category/categorySlice";
+import {
+  addCategory,
+  updateCategory,
+} from "../../features/category/categorySlice";
 
 export async function formAction({ request }: { request: Request }) {
   const formData = await request.formData();
@@ -190,64 +193,107 @@ export async function editExpenseAction({
   const quantity = formData.get("quantity") as string;
   const currency = formData.get("currency") as string;
   const priority = formData.get("priority") as "Low" | "Medium" | "High";
-
-  if (categoryIds.includes("choose category")) {
-    return { success: false, error: "Please select a valid category" };
-  }
-
-  if (!name || !price || !date) {
-    return { success: false, error: "Title, price, and date are required" };
-  }
-  if (!id) {
-    return { success: false, error: "Expense ID mismatch" };
-  }
-
-  try {
-    const { data: userData, error: userError } = await supabase.auth.getUser();
-    if (userError || !userData.user) {
-      return { success: false, error: "User not authenticated" };
+  const forWhich = formData.get("forWhich") as string;
+  if (forWhich === "expense") {
+    if (categoryIds.includes("choose category")) {
+      return { success: false, error: "Please select a valid category" };
     }
-    if (categoryIds.length > 0) {
-      const { data: validCategories, error: categoriesError } = await supabase
-        .from("category")
-        .select("category_id")
-        .in("category_id", categoryIds)
-        .eq("user_id", userData.user.id);
-      if (categoriesError || !validCategories) {
-        return {
-          success: false,
-          error: "One or more category IDs are invalid",
-        };
+
+    if (!name || !price || !date) {
+      return { success: false, error: "Title, price, and date are required" };
+    }
+    if (!id) {
+      return { success: false, error: "Expense ID mismatch" };
+    }
+
+    try {
+      const { data: userData, error: userError } =
+        await supabase.auth.getUser();
+      if (userError || !userData.user) {
+        return { success: false, error: "User not authenticated" };
       }
+      if (categoryIds.length > 0) {
+        const { data: validCategories, error: categoriesError } = await supabase
+          .from("category")
+          .select("category_id")
+          .in("category_id", categoryIds)
+          .eq("user_id", userData.user.id);
+        if (categoriesError || !validCategories) {
+          return {
+            success: false,
+            error: "One or more category IDs are invalid",
+          };
+        }
+      }
+
+      const updatedExpense = await store
+        .dispatch(
+          updateExpense({
+            id,
+            updates: {
+              amount: Number(price),
+              currency: currency || "USD",
+              category_IDs: categoryIds,
+              description: description,
+              date: date,
+              name,
+              user_id: userData.user.id,
+              quantity: Number(quantity) || 1,
+              priority: priority || "Medium",
+            },
+          })
+        )
+        .unwrap();
+
+      return {
+        success: true,
+        expense: updatedExpense,
+      };
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to edit expense";
+      return { success: false, error: errorMessage };
+    }
+  }
+  if (forWhich === "category") {
+    const name = formData.get("cat_name") as string;
+    const relevance = formData.get("relevance") as "High" | "Low" | "Medium";
+    const icon = formData.get("icon_name") as string;
+
+    if (!name) {
+      return { success: false, error: "Category name is required" };
     }
 
-    const updatedExpense = await store
-      .dispatch(
-        updateExpense({
-          id,
-          updates: {
-            amount: Number(price),
-            currency: currency || "USD",
-            category_IDs: categoryIds,
-            description: description,
-            date: date,
-            name,
-            user_id: userData.user.id,
-            quantity: Number(quantity) || 1,
-            priority: priority || "Medium",
-          },
-        })
-      )
-      .unwrap();
+    try {
+      const { data: userData, error: userError } =
+        await supabase.auth.getUser();
+      if (userError || !userData.user) {
+        return { success: false, error: "User not authenticated" };
+      }
 
-    return {
-      success: true,
-      expense: updatedExpense,
-    };
-  } catch (err) {
-    const errorMessage =
-      err instanceof Error ? err.message : "Failed to edit expense";
-    return { success: false, error: errorMessage };
+      if (!id) {
+        return { success: false, error: "invalid expense id" };
+      }
+
+      await store
+        .dispatch(
+          updateCategory({
+            id,
+            data: {
+              cat_name: name,
+              relevance: relevance,
+              icon: icon,
+            },
+          })
+        )
+        .unwrap();
+
+      return { success: true, message: "Category updated successfully" };
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to add category";
+      return { success: false, error: errorMessage };
+    }
   }
 }
 
@@ -275,7 +321,7 @@ export default async function addCategoryAction({
       .dispatch(
         addCategory({
           icon,
-          cat_name: name,
+          cat_name: name.charAt(0).toUpperCase() + name.slice(1),
           relevance,
         })
       )

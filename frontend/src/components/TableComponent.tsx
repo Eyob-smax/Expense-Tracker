@@ -8,7 +8,7 @@ type TTableProps = {
   headerArrays: string[];
   bodyArrays: TExpense[] | TCategory[];
   forWhich?: "expense" | "category";
-  pathForBody: "/expense" | "/category" | "/detail";
+  pathForBody: "/expense" | "/categories/:id" | "/detail";
 };
 
 export default function TableComponent({
@@ -22,6 +22,9 @@ export default function TableComponent({
   function navigateToDatails(path: string) {
     if (pathForBody === "/detail") {
       navigate(`${path}`);
+    }
+    if (pathForBody === "/categories/:id") {
+      navigate(`/categories/${path}`);
     }
   }
   return (
@@ -78,7 +81,10 @@ export default function TableComponent({
                 <td className="px-4 py-2">{row.relevance}</td>
                 <td className="px-4 py-2">{row.icon}</td>
                 <td className="px-4 py-2 max-w-[50px] overflow-x-hidden text-ellipsis">
-                  <Button className="bg-stone-800 px-5 cursor-pointer text-white text-center rounded-md">
+                  <Button
+                    onClick={() => navigateToDatails(row.category_id)}
+                    className="bg-stone-800 px-5 cursor-pointer text-white text-center rounded-md"
+                  >
                     View
                   </Button>
                 </td>

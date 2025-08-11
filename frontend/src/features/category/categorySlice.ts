@@ -66,18 +66,33 @@ export const deleteCategory = createAsyncThunk(
 
 export const updateCategory = createAsyncThunk(
   "categories/updateCategory",
-  async (categoryData: { id: string; name: string }, { rejectWithValue }) => {
+  async (
+    categoryData: { id: string; data: Partial<TCategory> },
+    { rejectWithValue }
+  ) => {
     const { data, error } = await supabase
       .from("category")
-      .update({ name: categoryData.name })
-      .match({ id: categoryData.id });
+      .update({
+        cat_name: categoryData.data.cat_name,
+        relevance: categoryData.data.relevance,
+        icon: categoryData.data.icon,
+      })
+      .eq("category_id", categoryData.id)
+      .select("*");
 
     if (error) {
-      console.error("Error updating category:", error);
       return rejectWithValue("Failed to update category");
     }
 
-    return data;
+    if (!data || data.length === 0) {
+      return rejectWithValue("No category data returned");
+    }
+
+    if (data[0] === null) {
+      return rejectWithValue("Category not found");
+    }
+
+    return data[0] as TCategory;
   }
 );
 
@@ -87,32 +102,30 @@ export const fetchCategoryById = createAsyncThunk(
     const { data, error } = await supabase
       .from("category")
       .select("*")
-      .eq("category_id", categoryId)
-      .single();
+      .eq("category_id", categoryId);
 
     if (error) {
       console.error("Error fetching category by ID:", error);
       return rejectWithValue("Failed to fetch category");
     }
 
-    return data;
+    return data[0];
   }
 );
 
 export const deleteCategoryById = createAsyncThunk(
   "categories/deleteCategoryById",
   async (categoryId: string, { rejectWithValue }) => {
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from("category")
       .delete()
-      .match({ categoryId });
+      .eq("category_id", categoryId);
 
     if (error) {
-      console.error("Error deleting category by ID:", error);
       return rejectWithValue("Failed to delete category");
     }
 
-    return data;
+    return categoryId;
   }
 );
 
@@ -150,6 +163,20 @@ const categorySlice = createSlice({
         state.isLoading = false;
         state.error = action.payload as string;
       })
+      .addCase(updateCategory.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(updateCategory.fulfilled, (state, action) => {
+        state.isLoading = false;
+        const updatedCategory = action.payload as TCategory;
+        state.categories = state.categories.map((category) => {
+          if (category.category_id === updatedCategory.category_id) {
+            return { ...category, ...updatedCategory };
+          }
+          return category;
+        });
+      })
       .addCase(deleteCategory.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -165,6 +192,24 @@ const categorySlice = createSlice({
           }
           return true;
         });
+      })
+      .addCase(deleteCategory.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(deleteCategoryById.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(deleteCategoryById.fulfilled, (state, { payload }) => {
+        state.isLoading = false;
+        state.categories = state.categories.filter(
+          (category) => category.category_id !== payload
+        );
+      })
+      .addCase(deleteCategoryById.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
       });
   },
 });

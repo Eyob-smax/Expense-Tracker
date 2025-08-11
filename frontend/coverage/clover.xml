@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1754886786295" clover="3.2.0">
+  <project timestamp="1754886786295" name="All files">
+    <metrics statements="8" coveredstatements="6" conditionals="8" coveredconditionals="4" methods="2" coveredmethods="2" elements="18" coveredelements="12" complexity="0" loc="8" ncloc="8" packages="1" files="1" classes="1"/>
+    <file name="util.ts" path="C:\Expense Tracker\frontend\src\utils\util.ts">
+      <metrics statements="8" coveredstatements="6" conditionals="8" coveredconditionals="4" methods="2" coveredmethods="2"/>
+      <line num="1" count="1" type="stmt"/>
+      <line num="5" count="1" type="cond" truecount="2" falsecount="2"/>
+      <line num="6" count="0" type="stmt"/>
+      <line num="15" count="1" type="cond" truecount="2" falsecount="2"/>
+      <line num="16" count="0" type="stmt"/>
+      <line num="25" count="1" type="stmt"/>
+      <line num="32" count="1" type="stmt"/>
+      <line num="33" count="3" type="stmt"/>
+    </file>
+  </project>
+</coverage>

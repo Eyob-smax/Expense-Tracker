@@ -67,7 +67,7 @@ export default function Categories() {
         bodyArrays={categoriesData || []}
         forWhich="category"
         headerArrays={["category", "relevance", "icon", "details"]}
-        pathForBody="/category"
+        pathForBody="/categories/:id"
       />
     </div>
   );

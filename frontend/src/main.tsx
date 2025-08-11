@@ -12,6 +12,7 @@ import addCategoryAction, {
 } from "./dataApi/actions/actions";
 import expenseLoader, { categoryLoader } from "./dataApi/loaders/loader";
 import DailyAnalytics from "./pages/DailyAnalytics";
+import CategoriesDetail from "./pages/CategoriesDetail";
 
 // lazy imports...
 const App = React.lazy(() => import("./App"));
@@ -58,7 +59,11 @@ const router = createBrowserRouter([
     element: <AddCategories />,
     action: addCategoryAction,
   },
-  { path: "/categories/:id", element: <Categories /> },
+  {
+    path: "/categories/:id",
+    element: <CategoriesDetail />,
+    action: editExpenseAction,
+  },
   { path: "/about", element: <About /> },
 ]);
 
