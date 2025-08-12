@@ -28,6 +28,7 @@ export default function ExpenseLists() {
   const dispatch = useDispatch<TAppDispatch>();
   const navigate = useNavigate();
   const [filteredExpenses, setFilteredExpenses] = useState<TExpense[]>([]);
+  const { categories } = useSelector((state: TRootState) => state.category);
 
   function searchExpense(e: ChangeEvent<HTMLInputElement>) {
     const value = e.target.value.toLowerCase();
@@ -72,10 +73,16 @@ export default function ExpenseLists() {
       />
       <div className="flex items-center justify-between p-3 w-[80%] mx-auto text-center">
         <h1 className="font-bold text-[22px]">All Expenses</h1>
-        <ButtonWithLink to="new">New Expense</ButtonWithLink>
+        <ButtonWithLink
+          className="bg-blue-500 text-white px-4 py-2 rounded"
+          to="new"
+        >
+          New Expense
+        </ButtonWithLink>
       </div>
       <Filtering
         expenses={expenses}
+        categories={categories}
         setFilteredExpenses={setFilteredExpenses}
         className="flex items-center justify-start gap-5  w-[90%] mx-auto mb-3"
       />
@@ -92,10 +99,10 @@ export default function ExpenseLists() {
           ref={elRef}
           headerArrays={[
             "Date",
-            "Name",
+            "Title",
             "Description",
-            "Amount",
-            "Currency",
+            "Total Amount",
+            "Priority",
             "Detail",
           ]}
           bodyArrays={filteredExpenses}

@@ -12,6 +12,7 @@ import {
 } from "../features/auth/authSlice";
 import type { TAppDispatch, TRootState } from "../app/store";
 import { supabase } from "../supabase/supabaseClient";
+import LoadingScreen from "./LoadingScreen";
 export default function UserForm({
   type = "signup",
 }: {
@@ -21,18 +22,21 @@ export default function UserForm({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const fetcher = useFetcher();
+  const [loading, setLoading] = useState(false);
   const dispatch = useDispatch<TAppDispatch>();
   const navigate = useNavigate();
 
   const { error } = useSelector((state: TRootState) => state.auth);
   useEffect(() => {
     const checkAuth = async () => {
+      setLoading(true);
       const {
         data: { session },
       } = await supabase.auth.getSession();
       if (session) {
         navigate("/overview");
       }
+      setLoading(false);
     };
     checkAuth();
   }, [navigate]);
@@ -68,6 +72,10 @@ export default function UserForm({
       title: "Error",
       text: error,
     });
+  }
+
+  if (loading) {
+    return <LoadingScreen />;
   }
 
   return (

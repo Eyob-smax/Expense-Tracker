@@ -1,6 +1,4 @@
-import { FaSearch } from "react-icons/fa";
 import Header from "../components/Header";
-import { Input } from "../components/ui/input";
 import ExpenseCard from "../components/ExpenseCard";
 import { v4 as uuidv4 } from "uuid";
 import TableComponent from "../components/TableComponent";
@@ -17,26 +15,14 @@ import { useDispatch, useSelector } from "react-redux";
 import type { TAppDispatch, TRootState } from "../app/store";
 import { setExpenses } from "../features/expense/expenseSlice";
 import { useEffect, useState } from "react";
-import Filtering from "../components/Filtering";
 
 const overviewLinks = [
+  { label: "Expenses", path: "/expenses" },
   { label: "categories", path: "/categories" },
   { label: "analytics", path: "/analytics" },
   { label: "settings", path: "/settings" },
   { label: "About", path: "/about" },
-  {
-    label: "search",
-    path: "non-existing-path",
-    element: (
-      <div className="flex border-black items-center space-x-2 px-3 rounded-[10px] bg-[#F0F2F5] text-[#61758A] w-[200px]">
-        <FaSearch />
-        <Input
-          placeholder="Search Expenses"
-          className="border-none outline-none focus:outline-none"
-        />
-      </div>
-    ),
-  },
+
   ProfileIcon,
 ];
 
@@ -105,17 +91,21 @@ export default function ExpenseOverview() {
           ))}
         </div>
         <h1 className="text-[20px] mt-5 font-bold">Recent Transactions</h1>
-        <Filtering
-          expenses={expenses}
-          setFilteredExpenses={setFilteredExpenses}
-          className="flex items-center justify-start gap-5 mx-auto mb-3"
-        />
+
         <TableComponent
+          pathForBody="/expense"
           ref={elRef}
           style={{ maxHeight: visibleHeight.toString() + "px" }}
           className="border-1 border-[#dbe0e5] mt-3 rounded-2xl overflow-y-scroll"
-          bodyArrays={filteredExpenses}
-          headerArrays={["Date", "Category", "Description", "Amount", "Status"]}
+          bodyArrays={filteredExpenses.slice(0, 5)}
+          headerArrays={[
+            "Date",
+            "Title",
+            "Description",
+            "Total Amount",
+            "Priority",
+            "Detail",
+          ]}
         />
         <ButtonWithLink to="/expenses">View All Transactions</ButtonWithLink>
         <div className="h-4 w-1"></div>

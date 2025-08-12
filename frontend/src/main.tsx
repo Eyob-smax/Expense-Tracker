@@ -5,14 +5,17 @@ import { Provider } from "react-redux";
 import { store } from "./app/store";
 import Wrapper from "./pages/Wrapper";
 import LoadingScreen from "./pages/LoadingScreen";
-import addCategoryAction, {
-  addExpenseAction,
-  editExpenseAction,
+import {
   formAction,
+  editExpenseAction,
+  addExpenseAction,
+  addCategoryAction,
 } from "./dataApi/actions/actions";
 import expenseLoader, { categoryLoader } from "./dataApi/loaders/loader";
 import DailyAnalytics from "./pages/DailyAnalytics";
 import CategoriesDetail from "./pages/CategoriesDetail";
+import PasswordRecovery from "./pages/PasswordRecovery";
+import UpdatePassword from "./pages/UpdatePassword";
 
 // lazy imports...
 const App = React.lazy(() => import("./App"));
@@ -40,7 +43,7 @@ const router = createBrowserRouter([
     path: "/analytics",
     element: <AnalyticsOverview />,
     children: [
-      { path: "daily", element: <DailyAnalytics /> },
+      { path: "daily", element: <DailyAnalytics />, index: true },
       { path: "weekly", element: <WeeklyAnalytics /> },
       { path: "monthly", element: <MonthlyAnalytics /> },
     ],
@@ -58,6 +61,14 @@ const router = createBrowserRouter([
     path: "/categories/new",
     element: <AddCategories />,
     action: addCategoryAction,
+  },
+  {
+    path: "/password-recovery",
+    element: <PasswordRecovery />,
+  },
+  {
+    path: "/update-password",
+    element: <UpdatePassword />,
   },
   {
     path: "/categories/:id",

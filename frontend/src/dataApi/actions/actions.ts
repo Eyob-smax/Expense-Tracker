@@ -297,11 +297,7 @@ export async function editExpenseAction({
   }
 }
 
-export default async function addCategoryAction({
-  request,
-}: {
-  request: Request;
-}) {
+export async function addCategoryAction({ request }: { request: Request }) {
   const formData = await request.formData();
   const name = formData.get("category_name") as string;
   const relevance = formData.get("relevance") as "High" | "Low" | "Medium";

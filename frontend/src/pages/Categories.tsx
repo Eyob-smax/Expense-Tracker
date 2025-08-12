@@ -13,9 +13,14 @@ import LoadingScreen from "./LoadingScreen";
 
 const categoriesHeaderLinks = [
   {
+    label: "Overview",
+    path: "/overview",
+  },
+  {
     label: "Expenses",
     path: "/expenses",
   },
+
   {
     label: "Analytics",
     path: "/analytics",
@@ -23,6 +28,10 @@ const categoriesHeaderLinks = [
   {
     label: "Settings",
     path: "/settings",
+  },
+  {
+    label: "About",
+    path: "/about",
   },
   ProfileIcon,
 ];
@@ -57,7 +66,12 @@ export default function Categories() {
       <Header title="Categories" linksOption={categoriesHeaderLinks} />
       <div className="flex items-center justify-between  py-3 w-[80%] mx-auto text-center">
         <h1 className="text-[22px] font-bold">Categories</h1>
-        <ButtonWithLink to="new">Add Category</ButtonWithLink>
+        <ButtonWithLink
+          className="bg-blue-500 text-white px-4 py-2 rounded"
+          to="new"
+        >
+          Add Category
+        </ButtonWithLink>
       </div>
       <p className="w-[80%]  mx-auto text-left font-extralight">
         Manage your expense categories and set budgets

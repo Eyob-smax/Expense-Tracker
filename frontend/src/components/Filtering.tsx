@@ -1,15 +1,17 @@
-import type { TExpense } from "../types/types";
+import type { TCategory, TExpense } from "../types/types";
 import dayjs from "dayjs";
 import { type Dispatch, type SetStateAction } from "react";
 export default function Filtering({
   expenses,
   setFilteredExpenses,
   className,
+  categories,
   ...rest
 }: {
   expenses: TExpense[];
   setFilteredExpenses: Dispatch<SetStateAction<TExpense[]>>; // Use Dispatch<SetStateAction> for setState
   rest?: React.ComponentProps<"div">;
+  categories?: TCategory[];
   className?: string;
 }) {
   const handleDateFilterChange = (
@@ -39,6 +41,19 @@ export default function Filtering({
     setFilteredExpenses(filtered);
   };
 
+  function handleCategoryFilterChange(
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) {
+    const value = event.target.value;
+    console.log("Selected category:", value);
+    const filtered =
+      expenses?.filter((expense: TExpense) => {
+        if (value === "all") return true;
+        return expense.category_IDs.includes(value);
+      }) || [];
+    setFilteredExpenses(filtered);
+  }
+
   return (
     <div {...rest} className={className}>
       <div className="rounded-[15px] text-sm w-fit py-[3px] px-5 mt-2 bg-[#F0F2F5] space-x-3">
@@ -60,10 +75,18 @@ export default function Filtering({
         <select
           className="appearance-none"
           aria-label="Sort expenses by category or time"
+          onChange={handleCategoryFilterChange}
         >
-          <option value="all">Sort by Category</option>
-          <option value="this_week">Newest First</option>
-          <option value="this_month">By Category</option>
+          {
+            <>
+              <option value="all">All Categories</option>
+              {categories?.map((category) => (
+                <option key={category.category_id} value={category.category_id}>
+                  {category.cat_name}
+                </option>
+              ))}
+            </>
+          }
         </select>
         <span className="transition-transform rotate-90">▼</span>
       </div>

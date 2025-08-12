@@ -1,13 +1,14 @@
 import { useEffect } from "react";
 import Header from "../components/Header";
 import { Button } from "../components/ui/button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import { supabase } from "../supabase/supabaseClient";
 import type { TAppDispatch } from "../app/store";
 import { useDispatch } from "react-redux";
 import { setLoginData } from "../features/auth/authSlice";
 import useSetUser from "../hooks/useSetUser";
+import Swal from "sweetalert2";
 const headerLinks = [
   { label: "Overview", path: "/overview" },
   { label: "Analytics", path: "analytics" },
@@ -17,10 +18,19 @@ const headerLinks = [
 ];
 
 export default function Home() {
+  const navigate = useNavigate();
   const dispatch = useDispatch<TAppDispatch>();
   useEffect(() => {
     const { data: listener } = supabase.auth.onAuthStateChange(
       (_event, session) => {
+        if (_event === "PASSWORD_RECOVERY") {
+          Swal.fire({
+            icon: "success",
+            title: "Password Recovery Email Sent",
+            text: "Please check your email for further instructions.",
+          });
+          navigate("/update-password");
+        }
         if (session?.user) {
           dispatch(
             setLoginData({
@@ -40,7 +50,6 @@ export default function Home() {
     };
   }, [dispatch]);
 
-  // In your App.jsx or main component (e.g., useEffect in App.js)
   useSetUser();
 
   return (
