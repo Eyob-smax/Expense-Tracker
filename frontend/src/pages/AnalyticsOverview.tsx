@@ -1,7 +1,7 @@
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import { ProfileIcon } from "../utils/constants";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import useCheckAuth from "../hooks/useCheckAuth";
 
 const LinkOptions = [

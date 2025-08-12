@@ -1,5 +1,5 @@
 import React, { StrictMode, Suspense } from "react";
-import { createRoot, Root } from "react-dom/client";
+import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router";
 import { Provider } from "react-redux";
 import { store } from "./app/store";
@@ -43,7 +43,7 @@ const router = createBrowserRouter([
     path: "/analytics",
     element: <AnalyticsOverview />,
     children: [
-      { path: "daily", element: <DailyAnalytics />, index: true },
+      { path: "daily", element: <DailyAnalytics /> },
       { path: "weekly", element: <WeeklyAnalytics /> },
       { path: "monthly", element: <MonthlyAnalytics /> },
     ],
@@ -81,7 +81,7 @@ const router = createBrowserRouter([
 const container = document.getElementById("root")!;
 
 // 🔹 Keep the root across HMR reloads
-let root: Root;
+let root;
 if (!("__reactRoot" in window)) {
   // @ts-ignore
   window.__reactRoot = createRoot(container);
