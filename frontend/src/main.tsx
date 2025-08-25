@@ -1,6 +1,12 @@
+declare global {
+  interface Window {
+    __reactRoot: ReturnType<typeof createRoot>;
+  }
+}
+
 import React, { StrictMode, Suspense } from "react";
 import { createRoot } from "react-dom/client";
-import { createBrowserRouter, RouterProvider } from "react-router";
+import { createBrowserRouter, RouterProvider } from "react-router-dom"; // Use react-router-dom
 import { Provider } from "react-redux";
 import { store } from "./app/store";
 import Wrapper from "./pages/Wrapper";
@@ -80,13 +86,13 @@ const router = createBrowserRouter([
 const container = document.getElementById("root")!;
 
 // 🔹 Keep the root across HMR reloads
-let root;
+const root = window.__reactRoot || createRoot(container);
 if (!("__reactRoot" in window)) {
-  // @ts-ignore
-  window.__reactRoot = createRoot(container);
+  (
+    window as Window & { __reactRoot: ReturnType<typeof createRoot> }
+  ).__reactRoot = root;
 }
-// @ts-ignore
-root = window.__reactRoot;
+// root = window.__reactRoot;
 
 root.render(
   <StrictMode>
