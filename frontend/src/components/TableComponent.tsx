@@ -46,7 +46,7 @@ export default function TableComponent({
           <tbody className="text-[#61758A] ">
             {(bodyArrays as TExpense[]).map((row) => (
               <tr key={row.expense_id} className="border-b border-[#E4E7EC] ">
-                <td className="px-4 py-2 max-w-[50px] overflow-x-hidden text-ellipsis">
+                <td className="px-4 py-2 max-w-[80px] overflow-x-hidden text-ellipsis">
                   {new Date(row.date).toLocaleDateString("en-US", {
                     month: "short",
                     day: "numeric",

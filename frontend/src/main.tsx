@@ -17,7 +17,6 @@ import CategoriesDetail from "./pages/CategoriesDetail";
 import PasswordRecovery from "./pages/PasswordRecovery";
 import UpdatePassword from "./pages/UpdatePassword";
 
-// lazy imports...
 const App = React.lazy(() => import("./App"));
 const UserForm = React.lazy(() => import("./pages/UserForm"));
 const Settings = React.lazy(() => import("./pages/Settings"));

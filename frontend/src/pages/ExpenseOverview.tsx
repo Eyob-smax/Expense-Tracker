@@ -80,12 +80,26 @@ export default function ExpenseOverview() {
           Here you can find a summary of your expenses.
         </p>
         <div className="flex items-center justify-start gap-8">
-          {expenses?.slice(0, 5)?.map((expense: TExpense) => (
+          {expenses?.slice(0, 5)?.map((expense, i) => (
             <ExpenseCard
               key={expense.expense_id}
-              amount={expense.amount.toString()}
+              amount={
+                (expense?.quantity &&
+                  (expense.amount * expense?.quantity).toString()) ||
+                "0"
+              }
               label={dayjs(expense.date).format("MMM DD, YYYY")}
-              percentageChange={{ color: "#E83808", value: "10" }}
+              percentageChange={{
+                color: "#E83808",
+                value:
+                  i !== 0 && expenses[i - 1]?.amount !== 0
+                    ? (
+                        ((expenses[i]?.amount - expenses[i - 1]?.amount) /
+                          expenses[i - 1]?.amount) *
+                        100
+                      ).toFixed(1)
+                    : "0",
+              }}
               className="w-[300px] bg-[#F0F2F5] shadow-md rounded-lg px-6 py-4 mt-3"
             />
           ))}

@@ -23,7 +23,6 @@ export async function formAction({ request }: { request: Request }) {
       return { success: false, error: "Username is required for signup." };
     }
 
-    // Check if user with email or username already exists
     const { data: existingUser, error: checkError } = await supabase
       .from("users")
       .select("*")
@@ -62,7 +61,6 @@ export async function formAction({ request }: { request: Request }) {
       };
     }
 
-    // Add additional user data to your `users` table
     const { error: insertError } = await supabase.from("users").insert({
       email,
       username,
@@ -84,7 +82,6 @@ export async function formAction({ request }: { request: Request }) {
     };
   }
 
-  // LOGIN
   const { data: signInData, error: signInError } =
     await supabase.auth.signInWithPassword({
       email,
