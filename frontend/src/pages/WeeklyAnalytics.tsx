@@ -1,4 +1,10 @@
+import { useDispatch, useSelector } from "react-redux";
 import AnalyticsGraph from "../components/AnalyticsGraph";
+import type { TAppDispatch, TRootState } from "../app/store";
+import { useCallback, useEffect, useMemo } from "react";
+import { fetchExpenses } from "../features/expense/expenseSlice";
+import { fetchCategories } from "../features/category/categorySlice";
+import LoadingScreen from "./LoadingScreen";
 
 const catData = [
   { category: "Food", value: 400 },
@@ -16,6 +22,36 @@ const data = [
 ];
 
 export default function WeeklyAnalytics() {
+  const { expenses, isLoading: expenseLoading } = useSelector(
+    (state: TRootState) => state.expense
+  );
+  const { categories, isLoading: categoryLoading } = useSelector(
+    (state: TRootState) => state.category
+  );
+  const dispatch = useDispatch<TAppDispatch>();
+
+  useEffect(() => {
+    dispatch(fetchExpenses());
+    dispatch(fetchCategories());
+  }, [dispatch]);
+
+  const catData = useMemo(
+    () =>
+      categories.map((category) => ({
+        category: category.cat_name,
+        value: expenses
+          .filter((expense) =>
+            expense.category_IDs.includes(category.category_id)
+          )
+          .reduce((acc, expense) => acc + expense.amount, 0),
+      })),
+    [categories, expenses]
+  );
+
+  if (expenseLoading || categoryLoading) {
+    return <LoadingScreen />;
+  }
+
   return (
     <AnalyticsGraph
       data={data}

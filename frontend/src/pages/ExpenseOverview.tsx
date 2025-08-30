@@ -22,7 +22,6 @@ const overviewLinks = [
   { label: "analytics", path: "/analytics" },
   { label: "settings", path: "/settings" },
   { label: "About", path: "/about" },
-
   ProfileIcon,
 ];
 
@@ -33,7 +32,9 @@ export default function ExpenseOverview() {
   const { error, loading } = useRegisterUser();
   const { data: fetchedExpenses, error: expenseError } = useLoaderData();
   const isLoading = useNavigation().state === "loading";
-  const { expenses } = useSelector((state: TRootState) => state.expense);
+  const { expenses, isLoading: expenseLoading } = useSelector(
+    (state: TRootState) => state.expense
+  );
   const [filteredExpenses, setFilteredExpenses] = useState<TExpense[]>([]);
 
   useEffect(() => {
@@ -63,7 +64,7 @@ export default function ExpenseOverview() {
     });
   }
 
-  if (loading || isLoading) {
+  if (loading || isLoading || expenseLoading) {
     return <LoadingScreen />;
   }
 

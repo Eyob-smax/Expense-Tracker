@@ -11,6 +11,7 @@ export interface TInitialAuthState {
 }
 
 export interface TExpense {
+  created_at?: number;
   expense_id: string;
   description?: string;
   amount: number;

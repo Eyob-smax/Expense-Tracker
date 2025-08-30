@@ -1,5 +1,5 @@
 import { FaBars } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { Button } from "./ui/button";
 import type { JSX } from "react";
 type THeaderProps = {
@@ -26,7 +26,7 @@ export default function Header({ title, linksOption }: THeaderProps) {
             return (
               <li key={uniqueKey}>
                 {label === "Login" || label === "Sign up" ? (
-                  <Link to={path}>
+                  <NavLink to={path}>
                     <Button
                       className={
                         specialStyle ? specialStyle : "bg-stone-800 text-white"
@@ -34,13 +34,13 @@ export default function Header({ title, linksOption }: THeaderProps) {
                     >
                       {element ? element : label}
                     </Button>
-                  </Link>
+                  </NavLink>
                 ) : element ? (
                   <>{element}</>
                 ) : (
-                  <Link to={path} className="hover:border-b-1 duration-75">
+                  <NavLink to={path} className="hover:border-b-1 duration-75">
                     {label}
-                  </Link>
+                  </NavLink>
                 )}
               </li>
             );

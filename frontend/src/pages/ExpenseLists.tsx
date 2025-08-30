@@ -13,6 +13,7 @@ import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import type { TExpense } from "../types/types";
 import Filtering from "../components/Filtering";
+import LoadingScreen from "./LoadingScreen";
 const ExpenseListsHeaders = [
   { label: "Analytics", path: "/analytics" },
   { label: "Overview", path: "/overview" },
@@ -24,11 +25,15 @@ const ExpenseListsHeaders = [
 
 export default function ExpenseLists() {
   const { elRef, visibleHeight } = useResizer<HTMLDivElement>();
-  const { expenses } = useSelector((state: TRootState) => state.expense);
+  const { expenses, isLoading: expenseLoading } = useSelector(
+    (state: TRootState) => state.expense
+  );
   const dispatch = useDispatch<TAppDispatch>();
   const navigate = useNavigate();
   const [filteredExpenses, setFilteredExpenses] = useState<TExpense[]>([]);
-  const { categories } = useSelector((state: TRootState) => state.category);
+  const { categories, isLoading } = useSelector(
+    (state: TRootState) => state.category
+  );
 
   function searchExpense(e: ChangeEvent<HTMLInputElement>) {
     const value = e.target.value.toLowerCase();
@@ -63,6 +68,10 @@ export default function ExpenseLists() {
   useEffect(() => {
     setFilteredExpenses(expenses || []);
   }, [expenses]);
+
+  if (isLoading || expenseLoading) {
+    return <LoadingScreen />;
+  }
 
   return (
     <div>
