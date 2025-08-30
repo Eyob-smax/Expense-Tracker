@@ -24,22 +24,20 @@ export default function DailyAnalytics() {
   const today = new Date().getDate();
 
   const catData = useMemo(() => {
-    return categories
-      .map((category) => {
-        const value = expenses.reduce((acc, expense) => {
-          const created = new Date(expense?.created_at || Date.now());
-          if (
-            created.getDate() === today &&
-            expense.category_IDs.includes(category.category_id)
-          ) {
-            acc += expense.amount * (expense.quantity || 1);
-          }
-          return acc;
-        }, 0);
+    return categories.map((category) => {
+      const value = expenses.reduce((acc, expense) => {
+        const created = new Date(expense?.created_at || Date.now());
+        if (
+          created.getDate() === today &&
+          expense.category_IDs.includes(category.category_id)
+        ) {
+          acc += expense.amount * (expense.quantity || 1);
+        }
+        return acc;
+      }, 0);
 
-        return { category: category.cat_name, value };
-      })
-      .filter((cat) => cat.value > 0);
+      return { category: category.cat_name, value };
+    });
   }, [categories, expenses, today]);
 
   const data = useMemo(() => {

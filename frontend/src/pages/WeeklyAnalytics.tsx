@@ -53,23 +53,21 @@ export default function WeeklyAnalytics() {
     const today = dayjs();
     const sevenDaysAgo = today.subtract(6, "day");
 
-    return categories
-      .map((category) => {
-        const value = expenses.reduce((acc, expense) => {
-          const created = dayjs(expense?.date || new Date());
-          if (
-            created.isBefore(sevenDaysAgo) ||
-            created.isAfter(today) ||
-            !expense.category_IDs.includes(category.category_id)
-          ) {
-            return acc;
-          }
-          return acc + expense.amount * (expense.quantity || 1);
-        }, 0);
+    return categories.map((category) => {
+      const value = expenses.reduce((acc, expense) => {
+        const created = dayjs(expense?.date || new Date());
+        if (
+          created.isBefore(sevenDaysAgo) ||
+          created.isAfter(today) ||
+          !expense.category_IDs.includes(category.category_id)
+        ) {
+          return acc;
+        }
+        return acc + expense.amount * (expense.quantity || 1);
+      }, 0);
 
-        return { category: category.cat_name, value };
-      })
-      .filter((cat) => cat.value > 0);
+      return { category: category.cat_name, value };
+    });
   }, [categories, expenses]);
 
   if (expenseLoading || categoryLoading) {
