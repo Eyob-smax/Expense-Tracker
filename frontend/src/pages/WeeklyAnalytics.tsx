@@ -1,20 +1,25 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useMemo } from "react";
 import dayjs from "dayjs";
+import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
+import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 import AnalyticsGraph from "../components/AnalyticsGraph";
 import LoadingScreen from "./LoadingScreen";
 import type { TAppDispatch, TRootState } from "../app/store";
 import { fetchExpenses } from "../features/expense/expenseSlice";
 import { fetchCategories } from "../features/category/categorySlice";
 
+dayjs.extend(isSameOrAfter);
+dayjs.extend(isSameOrBefore);
+
 export default function WeeklyAnalytics() {
+  const dispatch = useDispatch<TAppDispatch>();
   const { expenses, isLoading: expenseLoading } = useSelector(
     (state: TRootState) => state.expense
   );
   const { categories, isLoading: categoryLoading } = useSelector(
     (state: TRootState) => state.category
   );
-  const dispatch = useDispatch<TAppDispatch>();
 
   useEffect(() => {
     dispatch(fetchExpenses());
@@ -36,14 +41,15 @@ export default function WeeklyAnalytics() {
 
     expenses.forEach((item) => {
       const created = dayjs(item?.date || new Date());
-      if (created.isBefore(sevenDaysAgo) || created.isAfter(today)) return;
+      if (
+        !created.isSameOrAfter(sevenDaysAgo) ||
+        !created.isSameOrBefore(today)
+      )
+        return;
 
       const key = created.format("YYYY-MM-DD");
       const value = item.amount * (item.quantity || 1);
-
-      if (init[key]) {
-        init[key].value += value;
-      }
+      if (init[key]) init[key].value += value;
     });
 
     return Object.values(init);
@@ -57,8 +63,8 @@ export default function WeeklyAnalytics() {
       const value = expenses.reduce((acc, expense) => {
         const created = dayjs(expense?.date || new Date());
         if (
-          created.isBefore(sevenDaysAgo) ||
-          created.isAfter(today) ||
+          !created.isSameOrAfter(sevenDaysAgo) ||
+          !created.isSameOrBefore(today) ||
           !expense.category_IDs.includes(category.category_id)
         ) {
           return acc;
