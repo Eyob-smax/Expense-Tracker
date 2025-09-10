@@ -21,14 +21,19 @@ export default function DailyAnalytics() {
     (state: TRootState) => state.expense
   );
 
-  const today = new Date().getDate();
+  const today = useMemo(() => new Date(), []);
+
+  const isSameDay = (date1: Date, date2: Date) =>
+    date1.getDate() === date2.getDate() &&
+    date1.getMonth() === date2.getMonth() &&
+    date1.getFullYear() === date2.getFullYear();
 
   const catData = useMemo(() => {
     return categories.map((category) => {
       const value = expenses.reduce((acc, expense) => {
         const created = new Date(expense?.created_at || Date.now());
         if (
-          created.getDate() === today &&
+          isSameDay(created, today) &&
           expense.category_IDs.includes(category.category_id)
         ) {
           acc += expense.amount * (expense.quantity || 1);
@@ -45,12 +50,12 @@ export default function DailyAnalytics() {
       Record<string, { label: string; value: number; interval: string }>
     >((acc, item) => {
       const created = new Date(item?.created_at || Date.now());
-      if (created.getDate() !== today) return acc;
 
-      const hour = created.getUTCHours();
+      if (!isSameDay(created, today)) return acc;
+
+      const hour = created.getHours(); // local hours
       const hourKey = hour.toString();
       const value = item.amount * (item.quantity || 1);
-
       const interval = hour < 12 ? "Morning" : "Afternoon";
 
       if (!acc[hourKey]) {
