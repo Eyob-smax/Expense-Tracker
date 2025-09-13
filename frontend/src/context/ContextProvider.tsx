@@ -1,8 +1,16 @@
-import { UserContext } from "../hooks/useUserContext";
+import { useTheme } from "../hooks/useTheme";
+import { ThemeContext } from "../hooks/useThemeContext";
+
 type TContextChild = {
   children: React.ReactNode;
 };
 
 export default function ContextProvider({ children }: TContextChild) {
-  return <UserContext.Provider value={{}}>{children}</UserContext.Provider>;
+  const { theme, setTheme } = useTheme();
+
+  return (
+    <ThemeContext.Provider value={{ theme, setTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
 }

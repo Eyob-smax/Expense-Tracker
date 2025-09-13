@@ -1,7 +1,8 @@
 import { FaBars } from "react-icons/fa";
 import { NavLink } from "react-router-dom";
 import { Button } from "./ui/button";
-import type { JSX } from "react";
+import { useContext, type JSX } from "react";
+import { ThemeContext } from "../hooks/useThemeContext";
 type THeaderProps = {
   title: string;
   linksOption: Array<{
@@ -13,6 +14,8 @@ type THeaderProps = {
 };
 
 export default function Header({ title, linksOption }: THeaderProps) {
+  const { theme } = useContext(ThemeContext);
+
   return (
     <header className="w-full flex items-center justify-between px-3 py-2 border-b-[2px] border-b-[#E5E8EB]">
       <div>
@@ -20,7 +23,11 @@ export default function Header({ title, linksOption }: THeaderProps) {
       </div>
       <FaBars className="sm:hidden text-2xl cursor-pointer" />
       <nav className="hidden sm:flex  ">
-        <ul className="flex text-[#121417] font-semibold items-center space-x-4">
+        <ul
+          className={`flex ${
+            theme === "light" ? "text-[#121417]" : "text-[#f5f7fa]"
+          } font-semibold items-center space-x-4`}
+        >
           {linksOption.map(({ label, path, element, specialStyle }) => {
             const uniqueKey = `${label}-${path}`;
             return (
@@ -29,7 +36,11 @@ export default function Header({ title, linksOption }: THeaderProps) {
                   <NavLink to={path}>
                     <Button
                       className={
-                        specialStyle ? specialStyle : "bg-stone-800 text-white"
+                        specialStyle
+                          ? specialStyle
+                          : theme === "light"
+                          ? "bg-stone-800 text-white"
+                          : "bg-white text-stone-800 border border-stone-800"
                       }
                     >
                       {element ? element : label}

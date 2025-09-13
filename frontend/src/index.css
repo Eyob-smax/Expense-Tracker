@@ -1,39 +1,48 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap");
 
 body {
-  height: 100vh;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  width: 100%;
-  justify-content: center;
-  font-family: "Inter", sans-serif;
-}
-#root {
-  width: 100%;
-  height: 100%;
-}
-.transaction_table {
-  /* border: #dbe0e5 1px solid; */
-  border-radius: 20px;
-  width: 100%;
-}
-.transaction_table th {
-  /* background-color: #f0f2f5; */
-  padding: 10px;
-  border-bottom: #dbe0e5 1px solid;
-}
-.transaction_table td {
-  padding: 10px;
-  border-bottom: #dbe0e5 1px solid;
-}
-.transaction_table tr:nth-last-child() {
-  border: none;
+  @apply h-screen w-full m-0 p-0 flex items-center justify-center font-sans bg-white text-gray-900 transition-colors;
 }
 
+.dark body {
+  @apply bg-gray-900 text-gray-100;
+}
+
+#root {
+  @apply w-full h-full;
+}
+
+.transaction_table {
+  @apply w-full rounded-2xl border border-gray-200 overflow-hidden;
+}
+
+.transaction_table th {
+  @apply p-2 border-b border-gray-200 text-left font-semibold bg-gray-100;
+}
+
+.transaction_table td {
+  @apply p-2 border-b border-gray-200;
+}
+
+.transaction_table tr:last-child td {
+  @apply border-b-0;
+}
+
+.dark .transaction_table {
+  @apply border-gray-700;
+}
+
+.dark .transaction_table th {
+  @apply bg-gray-800 border-gray-700 text-gray-50;
+}
+
+.dark .transaction_table td {
+  @apply border-gray-700 text-gray-300;
+}
+
+/* Emoji picker overrides (still need !important since these are 3rd-party classes) */
 button .epr_-u8wwnq {
   min-width: 20px !important;
 }
@@ -43,28 +52,21 @@ button .epr_xfdx0 {
 button .epr_dkrjwv {
   padding: 12px !important;
 }
-
 .epr_-rk4ix5 {
   font-size: 13px !important;
-  /* padding: 2px 5px !important; */
 }
-
 .epr_-oj65po {
-  padding: -8px 1px !important;
+  padding: 0 1px !important;
 }
-
 .epr_-8ygbw8 {
   padding: 6px 13px !important;
 }
-
 .epr_-kg0voo {
   height: fit-content !important;
 }
-
 .epr_-z2fuzw {
   height: 33px !important;
 }
-
-.epr_-tqlurd.epr_szp4ut.epr_szp4ut.epr-emoji-img.epr_-a3ewa5.epr_-tul3d0.epr_xfdx0l.epr_-u8wwnq.epr_dkrjwv.__EmojiPicker__.epr_-dyxviy.epr_-w2g3k2.epr_-8yncdp.epr_szp4ut.epr_-tqlurd {
+.epr_-tqlurd.epr_szp4ut.epr-emoji-img.epr_-a3ewa5.epr_-tul3d0.epr_xfdx0l.epr_-u8wwnq.epr_dkrjwv.__EmojiPicker__.epr_-dyxviy.epr_-w2g3k2.epr_-8yncdp {
   padding: 3px !important;
 }

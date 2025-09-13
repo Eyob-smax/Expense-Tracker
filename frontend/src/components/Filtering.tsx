@@ -1,6 +1,8 @@
 import type { TCategory, TExpense } from "../types/types";
 import dayjs from "dayjs";
-import { type Dispatch, type SetStateAction } from "react";
+import { type Dispatch, type SetStateAction, useContext } from "react";
+import { ThemeContext } from "../hooks/useThemeContext";
+
 export default function Filtering({
   expenses,
   setFilteredExpenses,
@@ -9,11 +11,17 @@ export default function Filtering({
   ...rest
 }: {
   expenses: TExpense[];
-  setFilteredExpenses: Dispatch<SetStateAction<TExpense[]>>; // Use Dispatch<SetStateAction> for setState
+  setFilteredExpenses: Dispatch<SetStateAction<TExpense[]>>;
   rest?: React.ComponentProps<"div">;
   categories?: TCategory[];
   className?: string;
 }) {
+  const { theme } = useContext(ThemeContext);
+
+  // Theme-aware classes
+  const containerBg = theme === "dark" ? "bg-gray-700" : "bg-gray-200";
+  const textColor = theme === "dark" ? "text-gray-100" : "text-gray-900";
+
   const handleDateFilterChange = (
     event: React.ChangeEvent<HTMLSelectElement>
   ) => {
@@ -41,24 +49,25 @@ export default function Filtering({
     setFilteredExpenses(filtered);
   };
 
-  function handleCategoryFilterChange(
+  const handleCategoryFilterChange = (
     event: React.ChangeEvent<HTMLSelectElement>
-  ) {
+  ) => {
     const value = event.target.value;
-    console.log("Selected category:", value);
     const filtered =
       expenses?.filter((expense: TExpense) => {
         if (value === "all") return true;
         return expense.category_IDs.includes(value);
       }) || [];
     setFilteredExpenses(filtered);
-  }
+  };
 
   return (
     <div {...rest} className={className}>
-      <div className="rounded-[15px] text-sm w-fit py-[3px] px-5 mt-2 bg-[#F0F2F5] space-x-3">
+      <div
+        className={`rounded-[15px] text-sm w-fit py-[3px] px-5 mt-2 space-x-3 ${containerBg} ${textColor}`}
+      >
         <select
-          className="appearance-none"
+          className="appearance-none bg-transparent outline-none"
           onChange={handleDateFilterChange}
           aria-label="Filter expenses by date"
         >
@@ -71,22 +80,21 @@ export default function Filtering({
         </select>
         <span className="transition-transform rotate-90">▼</span>
       </div>
-      <div className="text-sm rounded-[15px] w-fit py-[3px] px-5 mt-2 bg-[#F0F2F5] space-x-3">
+
+      <div
+        className={`text-sm rounded-[15px] w-fit py-[3px] px-5 mt-2 space-x-3 ${containerBg} ${textColor}`}
+      >
         <select
-          className="appearance-none"
+          className="appearance-none bg-transparent outline-none"
           aria-label="Sort expenses by category or time"
           onChange={handleCategoryFilterChange}
         >
-          {
-            <>
-              <option value="all">All Categories</option>
-              {categories?.map((category) => (
-                <option key={category.category_id} value={category.category_id}>
-                  {category.cat_name}
-                </option>
-              ))}
-            </>
-          }
+          <option value="all">All Categories</option>
+          {categories?.map((category) => (
+            <option key={category.category_id} value={category.category_id}>
+              {category.cat_name}
+            </option>
+          ))}
         </select>
         <span className="transition-transform rotate-90">▼</span>
       </div>

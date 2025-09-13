@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Header from "../components/Header";
 import { Switch } from "../components/ui/switch";
 import { ProfileIcon } from "../utils/constants";
@@ -8,6 +8,7 @@ import { useDispatch } from "react-redux";
 import { logOutUser } from "../features/auth/authSlice";
 import type { TAppDispatch } from "../app/store";
 import Swal from "sweetalert2";
+import { ThemeContext } from "../hooks/useThemeContext";
 
 const SettingHeaderLists = [
   { path: "/expenses", label: "Expenses" },
@@ -20,8 +21,10 @@ const SettingHeaderLists = [
 ];
 
 export default function Settings() {
+  const { setTheme, theme } = useContext(ThemeContext);
+
   const [emailChecked, setEmailChecked] = useState(false);
-  const [darkModeChecked, setDarkModeChecked] = useState(false);
+  const [darkModeChecked, setDarkModeChecked] = useState(theme === "dark");
   const dispatch = useDispatch<TAppDispatch>();
   const navigate = useNavigate();
   const logout = async () => {
@@ -38,6 +41,15 @@ export default function Settings() {
     dispatch(logOutUser());
     navigate("/login");
   };
+
+  useEffect(() => {
+    if (darkModeChecked) {
+      setTheme!("dark");
+    } else {
+      setTheme!("light");
+    }
+  }, [darkModeChecked, setTheme]);
+
   return (
     <div>
       <Header title="Expense Tracker" linksOption={SettingHeaderLists} />

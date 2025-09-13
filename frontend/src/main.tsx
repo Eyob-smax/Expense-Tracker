@@ -22,6 +22,7 @@ import DailyAnalytics from "./pages/DailyAnalytics";
 import CategoriesDetail from "./pages/CategoriesDetail";
 import PasswordRecovery from "./pages/PasswordRecovery";
 import UpdatePassword from "./pages/UpdatePassword";
+import ContextProvider from "./context/ContextProvider";
 
 const App = React.lazy(() => import("./App"));
 const UserForm = React.lazy(() => import("./pages/UserForm"));
@@ -96,12 +97,14 @@ if (!("__reactRoot" in window)) {
 
 root.render(
   <StrictMode>
-    <Provider store={store}>
-      <Suspense fallback={<LoadingScreen />}>
-        <Wrapper>
-          <RouterProvider router={router} />
-        </Wrapper>
-      </Suspense>
-    </Provider>
+    <ContextProvider>
+      <Provider store={store}>
+        <Suspense fallback={<LoadingScreen />}>
+          <Wrapper>
+            <RouterProvider router={router} />
+          </Wrapper>
+        </Suspense>
+      </Provider>
+    </ContextProvider>
   </StrictMode>
 );

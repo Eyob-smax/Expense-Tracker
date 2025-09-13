@@ -53,7 +53,7 @@ export default function DailyAnalytics() {
 
       if (!isSameDay(created, today)) return acc;
 
-      const hour = created.getHours(); // local hours
+      const hour = created.getHours();
       const hourKey = hour.toString();
       const value = item.amount * (item.quantity || 1);
       const interval = hour < 12 ? "Morning" : "Afternoon";

@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import Header from "../components/Header";
 import { Button } from "../components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
-import { v4 as uuidv4 } from "uuid";
 import { supabase } from "../supabase/supabaseClient";
 import type { TAppDispatch } from "../app/store";
 import { useDispatch } from "react-redux";
@@ -54,11 +53,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <Header
-        key={uuidv4()}
-        linksOption={headerLinks}
-        title="Expense Tracker"
-      />
+      <Header linksOption={headerLinks} title="Expense Tracker" />
       <main className="flex-1 flex-col md:flex md:flex-row items-center justify-center w-[80%]  sm:w-[65%]">
         <div className="p-4 flex items-center justify-center">
           <img src="src\assets\homePageBg.png" alt="Expense Tracker" />
