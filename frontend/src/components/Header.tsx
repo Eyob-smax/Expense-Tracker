@@ -25,7 +25,9 @@ export default function Header({ title, linksOption }: THeaderProps) {
       <nav className="hidden sm:flex  ">
         <ul
           className={`flex ${
-            theme === "light" ? "text-[#121417]" : "text-[#f5f7fa]"
+            theme === "light" || theme === "system"
+              ? "text-[#121417]"
+              : "text-[#f5f7fa]"
           } font-semibold items-center space-x-4`}
         >
           {linksOption.map(({ label, path, element, specialStyle }) => {
@@ -38,9 +40,9 @@ export default function Header({ title, linksOption }: THeaderProps) {
                       className={
                         specialStyle
                           ? specialStyle
-                          : theme === "light"
-                          ? "bg-stone-800 text-white"
-                          : "bg-white text-stone-800 border border-stone-800"
+                          : theme === "light" || theme === "system"
+                          ? "bg-white text-stone-800 border border-stone-800"
+                          : "bg-stone-800 text-white"
                       }
                     >
                       {element ? element : label}

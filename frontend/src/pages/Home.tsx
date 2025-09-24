@@ -13,7 +13,7 @@ const headerLinks = [
   { label: "Analytics", path: "analytics" },
   { label: "settings", path: "settings" },
   { label: "About", path: "/about" },
-  { label: "Login", path: "/login" },
+  { label: "Login", path: "/login", specialStyle: "bg-stone-800 text-white" },
 ];
 
 export default function Home() {
